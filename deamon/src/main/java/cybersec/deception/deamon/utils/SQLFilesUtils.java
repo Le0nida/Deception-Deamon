@@ -11,8 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 public class SQLFilesUtils {
 
-    @Value("${sqlfiles.dir.location}")
     private static String sqlfilesDirectory;
+
+    @Value("${sqlfiles.dir.location}")
+    public void setSqlfilesDirectory(String sqlfilesDirectory) {
+        SQLFilesUtils.sqlfilesDirectory = sqlfilesDirectory;
+    }
 
     public static String getUpdatedSqlFile(String inputFileName, List<String> selectedAttributes) {
 

@@ -23,8 +23,12 @@ import java.util.List;
 @Component
 public class PomMavenUtils {
 
-    @Value("${pom.location}")
     private static String pomPath;
+
+    @Value("${pom.location}")
+    public void setPomPath(String pomPath) {
+        PomMavenUtils.pomPath = pomPath;
+    }
 
     public static void configSwaggerApiPom(){
 

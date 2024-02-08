@@ -26,7 +26,14 @@ public class ServerBuildingService {
     @Value("${default.server.specFile}")
     private String serverSpecFileLocation;
 
-    public void buildBasicServerFromSwagger(String yamlSpecFile){
+    @Value("${pom.location}")
+    private String pomPath;
+
+    @Value("${application.properties.location}")
+    private String appPropertiesPath;
+
+
+    public void buildBasicServerFromSwagger(String yamlSpecFile, String basepath){
 
         // creo la directory di destinazione del progetto genero (o la svuoto)
         FileUtils.checkEmptyFolder(serverDirectory);
@@ -36,6 +43,12 @@ public class ServerBuildingService {
 
         // genero il codice del server all'interno della directory
         generateServerCode(serverSpecFileLocation, serverFramework, serverDirectory);
+
+        // Aggiorno la versione Java del POM
+        FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
+
+        // Modifico il path base
+        FileUtils.replaceStringInFile(appPropertiesPath, "server.servlet.contextPath=/api/v3", "server.servlet.contextPath=/"+ basepath);
 
         // elimino il file.yaml (non più necessario)
         FileUtils.deleteFile(serverSpecFileLocation);
@@ -122,7 +135,6 @@ public class ServerBuildingService {
     }
 
     public void cleanDirectory() {
-        File folder = new File(serverDirectory);
-        FileUtils.emptyFolder(folder);
+        FileUtils.deleteDirectory(serverDirectory);
     }
 }

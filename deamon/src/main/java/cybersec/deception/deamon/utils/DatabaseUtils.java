@@ -14,20 +14,36 @@ import java.util.Map;
 
 public class DatabaseUtils {
 
-    @Value("${database.driverclass}")
     private static String driverClass;
+    private static String url;
+    private static String username;
+    private static String password;
+    private static String dbname;
+
+    @Value("${database.driverclass}")
+    public void setDriverClass(String driverClass) {
+        DatabaseUtils.driverClass = driverClass;
+    }
 
     @Value("${database.url}")
-    private static String url;
+    public void setUrl(String url) {
+        DatabaseUtils.url = url;
+    }
 
     @Value("${database.username}")
-    private static String username;
+    public void setUsername(String username) {
+        DatabaseUtils.username = username;
+    }
 
     @Value("${database.password}")
-    private static String password;
+    public void setPassword(String password) {
+        DatabaseUtils.password = password;
+    }
 
     @Value("${database.name}")
-    private static String dbname;
+    public void setDbname(String dbname) {
+        DatabaseUtils.dbname = dbname;
+    }
 
     public static void createDatabaseAndTable(Map<String, List<String>> entities) {
         Connection connection = null;

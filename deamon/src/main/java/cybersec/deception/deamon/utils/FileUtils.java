@@ -241,4 +241,21 @@ public class FileUtils {
             System.out.println("Il file non esiste.");
         }
     }
+
+    public static void deleteDirectory(String dirName) {
+        File directory = new File(dirName);
+        deleteDirectory(directory);
+    }
+
+    private static void deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    deleteDirectory(file);
+                }
+            }
+        }
+        directory.delete();
+    }
 }
