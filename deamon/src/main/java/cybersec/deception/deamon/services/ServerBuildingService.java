@@ -25,7 +25,7 @@ public class ServerBuildingService {
     @Value("${default.server.specFile}")
     private String serverSpecFileLocation;
 
-    public byte[] buildBasicServerFromSwagger(String yamlSpecFile){
+    public void buildBasicServerFromSwagger(String yamlSpecFile){
 
         // creo la directory di destinazione del progetto genero (o la svuoto)
         FileUtils.checkEmptyFolder(serverDirectory);
@@ -38,8 +38,6 @@ public class ServerBuildingService {
 
         // elimino il file.yaml (non più necessario)
         FileUtils.deleteFile(serverSpecFileLocation);
-
-        return null;
     }
 
     public byte[] getZip() throws IOException {
@@ -106,5 +104,10 @@ public class ServerBuildingService {
         }
         int exitCode = process.waitFor();
         return exitCode;
+    }
+
+    public void cleanDirectory() {
+        File folder = new File(serverDirectory);
+        FileUtils.emptyFolder(folder);
     }
 }

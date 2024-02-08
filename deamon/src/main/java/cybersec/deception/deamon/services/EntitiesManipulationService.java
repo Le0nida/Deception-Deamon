@@ -36,7 +36,7 @@ public class EntitiesManipulationService {
     }
 
     public Map<String, String> retrieveAll(){
-        Map<String, String> fileContentsMap = new HashMap<>();
+        Map<String, String> fileContentsMap;
 
         File[] files = FileUtils.getFilesFilteredByExtension(entitiesDirectory, ".json");
         fileContentsMap = FileUtils.readFilesContent(files);

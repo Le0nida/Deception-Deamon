@@ -2,17 +2,20 @@ package cybersec.deception.deamon.utils;
 
 import org.springframework.stereotype.Component;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 
-import java.io.File;
+import java.util.stream.Collectors;
 
 @Component
 public class FileUtils {
@@ -45,7 +48,7 @@ public class FileUtils {
         }
     }
 
-    private static void emptyFolder(File folder) {
+    public static void emptyFolder(File folder) {
         // Verifica se la cartella è una directory
         if (folder.isDirectory()) {
             File[] files = folder.listFiles();
@@ -67,6 +70,90 @@ public class FileUtils {
                 }
             }
         }
+    }
+    public static void replaceStringInFile(String filePath, String searchString, String replacement) {
+        // Leggi tutte le linee del file e trasformale in una lista di stringhe
+        Path path = Paths.get(filePath);
+        List<String> lines = null;
+        try {
+            lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Effettua la sostituzione della stringa in ogni linea
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            // Effettua la sostituzione della stringa se presente
+            lines.set(i, line.replace(searchString, replacement));
+        }
+
+        // Sovrascrivi il file con le linee modificate
+        try {
+            Files.write(path, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Sostituzione eseguita con successo nel file: " + filePath);
+    }
+
+    public static String readFile(String filePath) {
+        try {
+            return Files.lines(Paths.get(filePath)).collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void scriviFile(String nomeFile, List<String> contenuto) {
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(nomeFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (String riga : contenuto) {
+            try {
+                writer.write(riga + "\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<String> leggiFile(String nomeFile) {
+        List<String> righe = new ArrayList<>();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(nomeFile));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        String riga;
+        while (true) {
+            try {
+                if (!((riga = reader.readLine()) != null)) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            righe.add(riga);
+        }
+
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return righe;
     }
 
     public static File[] getFilesFilteredByExtension(String directory, String extension) {

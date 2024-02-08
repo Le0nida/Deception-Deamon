@@ -2,6 +2,8 @@ package cybersec.deception.deamon.utils;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class Utils {
 
@@ -40,5 +42,15 @@ public class Utils {
 
     public static <T> boolean isNullOrEmpty(T[] array) {
         return array == null || array.length == 0;
+    }
+
+    public static void removeEmptyStrings(List<String> stringList, String valueToRemove) {
+
+        stringList.removeIf(str -> str.equals(valueToRemove));
+    }
+
+    public static void removeEmptyStrings(List<String> stringList) {
+
+        removeEmptyStrings(stringList, "");
     }
 }

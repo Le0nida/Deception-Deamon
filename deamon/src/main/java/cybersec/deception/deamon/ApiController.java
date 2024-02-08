@@ -1,47 +1,25 @@
 package cybersec.deception.deamon;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.*;
-import com.github.dockerjava.api.model.*;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.core.command.PullImageResultCallback;
-import com.github.dockerjava.core.command.PushImageResultCallback;
-import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
-import com.github.dockerjava.jaxrs.JerseyDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
 import cybersec.deception.deamon.services.DockerHubBuildService;
 import cybersec.deception.deamon.services.ManagePersistenceService;
 import cybersec.deception.deamon.services.ServerBuildingService;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.ServerBuildResponse;
-import cybersec.deception.deamon.utils.Utils;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import static cybersec.deception.deamon.utils.FileUtils.readFileContent;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -903,8 +881,11 @@ public class ApiController {
     }
 
     @PostMapping("/buildSpringServer")
-    public ResponseEntity<?> buildSpringServer(@RequestBody String yamlSpecString, boolean persistence) {
+    public ResponseEntity<?> buildSpringServer(@RequestBody Map<String, Object> requestBody) {
         ServerBuildResponse response = new ServerBuildResponse();
+
+        String yamlSpecString = (String) requestBody.get("yamlSpecString");
+        boolean persistence = (boolean) requestBody.get("persistence");
 
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
@@ -914,25 +895,18 @@ public class ApiController {
 
             if (persistence) {
 
-                byte[] databaseDockerImg = new byte[0];
+                // Restituisco:
+                //      - lista di funzioni da modificare
 
                 // manipolo il server generato per aggiungere la gestione della persistenza
                 this.persistenceService.managePersistence();
 
                 // recupero la lista di nomi di operazioni non implementate
-                List<String> notImplMethods = this.persistenceService.getNotImplementedMethods();
-
+                Map<String, List<String>> notImplMethods = this.persistenceService.getNotImplementedMethods();
                 response.setNotImplMethods(notImplMethods);
 
-
-                // genero il db nel container
-
-                // popolo il db
-
-                // TODO restituisco l'immagine docker "db"
-
-                // restituisco una lista di stringhe
-
+                // genero e popolo il database
+                this.persistenceService.setupDatabase(yamlSpecString);
             }
 
             // Restituisco:
@@ -952,11 +926,13 @@ public class ApiController {
             }
             response.setServerZipFile(zipFileContent);
             response.setInstructions(instructionsContent);
-            response.setServerDockerImg(serverDockerImg);
+            //response.setServerDockerImg(serverDockerImg);
 
 
             // TODO restituisco l'immagine docker "deamon"
 
+
+            this.serverBuildingService.cleanDirectory();
 
             return ResponseEntity.ok()
                     .header("Content-Disposition", "attachment; filename=deception_deamon.zip")
@@ -979,9 +955,17 @@ public class ApiController {
     @PostMapping("/validateOpenAPISpec")
     public ResponseEntity<String> validateOpenAPI(@RequestBody String yamlString) {
         try {
-            SwaggerParseResult parseResult = new OpenAPIV3Parser().readContents(yamlString);
+            ParseOptions options = new ParseOptions();
+            options.setResolve(true);
+            SwaggerParseResult parseResult = new OpenAPIV3Parser().readContents(yamlString, null, options);
 
             if (parseResult.getMessages() == null || parseResult.getMessages().isEmpty()) {
+
+                // Verifica la conformità rispetto alle specifiche OpenAPI
+                OpenAPI openAPI = parseResult.getOpenAPI();
+                if (openAPI == null) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore di conformità OpenAPI");
+                }
                 return ResponseEntity.ok("La specifica OpenAPI è valida.");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore nella specifica OpenAPI:\n" + parseResult.getMessages());
@@ -990,6 +974,4 @@ public class ApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la validazione OpenAPI: " + e.getMessage());
         }
     }
-
-
 }

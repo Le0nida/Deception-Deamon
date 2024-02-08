@@ -1,17 +1,16 @@
 package cybersec.deception.deamon.utils;
 
 import java.util.List;
+import java.util.Map;
 
 public class ServerBuildResponse {
 
-    private byte[] databaseDockerImg;
     private byte[] serverDockerImg;
     private byte[] serverZipFile;
-    private List<String> notImplMethods;
+    private Map<String, List<String>> notImplMethods;
     private String instructions;
 
-    public ServerBuildResponse(byte[] databaseDockerImg, byte[] serverDockerImg, byte[] serverZipFile, List<String> notImplMethods, String instructions) {
-        this.databaseDockerImg = databaseDockerImg;
+    public ServerBuildResponse(byte[] serverDockerImg, byte[] serverZipFile, Map<String, List<String>> notImplMethods, String instructions) {
         this.serverDockerImg = serverDockerImg;
         this.serverZipFile = serverZipFile;
         this.notImplMethods = notImplMethods;
@@ -19,14 +18,6 @@ public class ServerBuildResponse {
     }
 
     public ServerBuildResponse() {
-    }
-
-    public byte[] getDatabaseDockerImg() {
-        return databaseDockerImg;
-    }
-
-    public void setDatabaseDockerImg(byte[] databaseDockerImg) {
-        this.databaseDockerImg = databaseDockerImg;
     }
 
     public byte[] getServerDockerImg() {
@@ -45,11 +36,11 @@ public class ServerBuildResponse {
         this.serverZipFile = serverZipFile;
     }
 
-    public List<String> getNotImplMethods() {
+    public Map<String, List<String>> getNotImplMethods() {
         return notImplMethods;
     }
 
-    public void setNotImplMethods(List<String> notImplMethods) {
+    public void setNotImplMethods(Map<String, List<String>> notImplMethods) {
         this.notImplMethods = notImplMethods;
     }
 
