@@ -1,5 +1,6 @@
 package cybersec.deception.deamon.services;
 import cybersec.deception.deamon.utils.FileUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
@@ -50,7 +51,14 @@ public class ServerBuildingService {
             zos.finish();
             zos.flush();
 
-            return baos.toByteArray();
+            byte[] zipBytes = baos.toByteArray();
+
+            // Verifica la validità del file ZIP
+            if (isZipValid(zipBytes)) {
+                return zipBytes;
+            } else {
+                throw new IOException("Il file ZIP non è valido.");
+            }
         }
     }
 
@@ -71,6 +79,13 @@ public class ServerBuildingService {
                 }
                 zipOutputStream.closeEntry();
             }
+        }
+    }
+
+    private static boolean isZipValid(byte[] zipBytes) throws IOException {
+        try (InputStream is = new ByteArrayInputStream(zipBytes);
+             ZipArchiveInputStream zis = new ZipArchiveInputStream(is)) {
+            return zis.getNextEntry() != null;
         }
     }
 

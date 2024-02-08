@@ -934,10 +934,7 @@ public class ApiController {
 
             this.serverBuildingService.cleanDirectory();
 
-            return ResponseEntity.ok()
-                    .header("Content-Disposition", "attachment; filename=deception_deamon.zip")
-                    .body(response);
-
+            return ResponseEntity.ok().body(response);
         }
         else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore durante la validazione OpenAPI");
