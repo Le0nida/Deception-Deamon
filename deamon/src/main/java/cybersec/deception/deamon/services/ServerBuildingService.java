@@ -1,13 +1,9 @@
 package cybersec.deception.deamon.services;
+
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.PomMavenUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -27,8 +23,6 @@ public class ServerBuildingService {
     @Value("${default.server.specFile}")
     private String serverSpecFileLocation;
 
-    @Value("${pom.location}")
-    private String pomPath;
 
     @Value("${application.properties.location}")
     private String appPropertiesPath;
@@ -125,14 +119,13 @@ public class ServerBuildingService {
         );
 
         processBuilder.inheritIO();
-        Process process = null;
+        Process process;
         try {
             process = processBuilder.start();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        int exitCode = process.waitFor();
-        return exitCode;
+        return process.waitFor();
     }
 
     public void cleanDirectory() {

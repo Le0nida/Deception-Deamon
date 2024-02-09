@@ -58,6 +58,8 @@ public class PomMavenUtils {
         List<Element> elements = new ArrayList<>();
         elements.add(createHibernateDependency(doc));
         elements.add(createJDBCMySqlDependency(doc));
+        elements.add(createJPADependency(doc));
+        elements.add(createJPAstarterDependency(doc));
 
         // Aggiungo le dipendenze al document
         addDependencyToPom(doc, elements);
@@ -65,14 +67,11 @@ public class PomMavenUtils {
         // Aggiorno il pom
         updateDom(doc, pomPath);
 
-        // Aggiorno la versione Java del POM
-        // FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
-
         // Modifico il pom specificando la main class
-        addMainClassConfiguration(pomPath, "io.swagger.Spring2Boot");
+        // addMainClassConfiguration(pomPath, "io.swagger.Spring2Boot");
     }
 
-    private static void addMainClassConfiguration(String pomFilePath, String mainClass) {
+    /*private static void addMainClassConfiguration(String pomFilePath, String mainClass) {
         List<String> lines = FileUtils.leggiFile(pomFilePath);
 
         // Cerca la posizione del tag </build>
@@ -98,12 +97,12 @@ public class PomMavenUtils {
             }
         }
         return -1;
-    }
+    }*/
 
     private static Document getPomDocument (String path) {
         // Crea il documento DOM dal file esistente
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
+        DocumentBuilder documentBuilder;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -120,7 +119,7 @@ public class PomMavenUtils {
 
     private static void updateDom(Document document, String path) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = null;
+        Transformer transformer;
         try {
             transformer = transformerFactory.newTransformer();
         } catch (TransformerConfigurationException e) {
@@ -156,6 +155,13 @@ public class PomMavenUtils {
         return createDependency(document, "javax.xml.bind", "jaxb-api", "2.3.1");
     }
 
+    private static Element createJPAstarterDependency(Document document) {
+        return createDependency(document, "org.springframework.boot", "spring-boot-starter-data-jpa", null);
+    }
+    private static Element createJPADependency(Document document) {
+        return createDependency(document, "org.springframework.data", "spring-data-jpa", "2.1.19.RELEASE");
+    }
+
     private static Element createDependency(Document document, String groupId, String artifactId, String version) {
         Element dependency = document.createElement("dependency");
 
@@ -167,9 +173,12 @@ public class PomMavenUtils {
         artifactIdEl.appendChild(document.createTextNode(artifactId));
         dependency.appendChild(artifactIdEl);
 
-        Element versionEl = document.createElement("version");
-        versionEl.appendChild(document.createTextNode(version));
-        dependency.appendChild(versionEl);
+        if (!Utils.isNullOrEmpty(version)) {
+            Element versionEl = document.createElement("version");
+            versionEl.appendChild(document.createTextNode(version));
+            dependency.appendChild(versionEl);
+        }
+
 
         return dependency;
     }

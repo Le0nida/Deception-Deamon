@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -61,11 +60,11 @@ public class ApiController {
                 this.persistenceService.managePersistence();
 
                 // recupero la lista di nomi di operazioni non implementate
-                Map<String, List<String>> notImplMethods = this.persistenceService.getNotImplementedMethods();
+                String notImplMethods = this.persistenceService.getNotImplementedMethods();
                 response.setNotImplMethods(notImplMethods);
 
                 // genero e popolo il database
-                this.persistenceService.setupDatabase(yamlSpecString);
+                // this.persistenceService.setupDatabase(yamlSpecString);
             }
 
             byte[] zipFileContent;
