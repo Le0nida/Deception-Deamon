@@ -1,12 +1,14 @@
 package cybersec.deception.deamon.utils;
 
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+@Component
 public class HibernateUtils {
     public static String generateHibernateUtilContent() {
         return """

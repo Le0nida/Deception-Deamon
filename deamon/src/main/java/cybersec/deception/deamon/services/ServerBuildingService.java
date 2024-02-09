@@ -1,5 +1,6 @@
 package cybersec.deception.deamon.services;
 import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.PomMavenUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -44,8 +45,8 @@ public class ServerBuildingService {
         // genero il codice del server all'interno della directory
         generateServerCode(serverSpecFileLocation, serverFramework, serverDirectory);
 
-        // Aggiorno la versione Java del POM
-        FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
+        // configuro il pom.xml
+        PomMavenUtils.configureDefaultPom();
 
         // Modifico il path base
         FileUtils.replaceStringInFile(appPropertiesPath, "server.servlet.contextPath=/api/v3", "server.servlet.contextPath=/"+ basepath);

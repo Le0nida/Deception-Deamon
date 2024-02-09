@@ -1,6 +1,7 @@
 package cybersec.deception.deamon.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,9 +10,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+@Component
 public class SQLFilesUtils {
 
-    private static String sqlfilesDirectory;
+    public static String sqlfilesDirectory;
 
     @Value("${sqlfiles.dir.location}")
     public void setSqlfilesDirectory(String sqlfilesDirectory) {
@@ -21,11 +23,18 @@ public class SQLFilesUtils {
     public static String getUpdatedSqlFile(String inputFileName, List<String> selectedAttributes) {
 
         String inputFilePath = FileUtils.buildPath(sqlfilesDirectory, inputFileName + ".sql");
-        String outputFilePath = inputFilePath.replace(".sql", "Updated.sql");
 
-        processSQLFile(inputFilePath, outputFilePath, selectedAttributes);
+        if (FileUtils.existsFile(inputFilePath)) {
+            String outputFilePath = inputFilePath.replace(".sql", "Updated.sql");
 
-        return outputFilePath;
+            processSQLFile(inputFilePath, outputFilePath, selectedAttributes);
+
+            return outputFilePath;
+        }
+        else {
+            System.out.println("Il file " + inputFilePath + " non esiste");
+        }
+        return null;
     }
 
     private static void processSQLFile(String inputFilePath, String outputFilePath, List<String> selectedAttributes) {

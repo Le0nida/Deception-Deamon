@@ -1,5 +1,8 @@
 package cybersec.deception.deamon.utils;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class CRUDMethodsUtils {
 
     public static String getCreateMethod(String entityName) {

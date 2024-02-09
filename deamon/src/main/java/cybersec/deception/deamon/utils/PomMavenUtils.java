@@ -30,6 +30,25 @@ public class PomMavenUtils {
         PomMavenUtils.pomPath = pomPath;
     }
 
+    public static void configureDefaultPom(){
+
+        // Recupero il documento
+        Document doc = getPomDocument(pomPath);
+
+        // Creo le dipendenze da aggiungere
+        List<Element> elements = new ArrayList<>();
+        elements.add(createJAXBDependency(doc));
+
+        // Aggiungo le dipendenze al document
+        addDependencyToPom(doc, elements);
+
+        // Aggiorno il pom
+        updateDom(doc, pomPath);
+
+        // Aggiorno la versione Java del POM
+        FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
+    }
+
     public static void configSwaggerApiPom(){
 
         // Recupero il documento
@@ -47,7 +66,7 @@ public class PomMavenUtils {
         updateDom(doc, pomPath);
 
         // Aggiorno la versione Java del POM
-        FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
+        // FileUtils.replaceStringInFile(pomPath, "<java.version>1.7</java.version>", "<java.version>1.8</java.version>");
 
         // Modifico il pom specificando la main class
         addMainClassConfiguration(pomPath, "io.swagger.Spring2Boot");
@@ -131,6 +150,10 @@ public class PomMavenUtils {
 
     private static Element createJDBCMySqlDependency(Document document) {
         return createDependency(document, "mysql", "mysql-connector-java", "8.0.23");
+    }
+
+    private static Element createJAXBDependency(Document document) {
+        return createDependency(document, "javax.xml.bind", "jaxb-api", "2.3.1");
     }
 
     private static Element createDependency(Document document, String groupId, String artifactId, String version) {

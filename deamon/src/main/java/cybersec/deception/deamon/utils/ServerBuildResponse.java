@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class ServerBuildResponse {
 
-    private byte[] serverDockerImg;
+    private String serverDockerFile;
     private byte[] serverZipFile;
     private Map<String, List<String>> notImplMethods;
     private String instructions;
 
-    public ServerBuildResponse(byte[] serverDockerImg, byte[] serverZipFile, Map<String, List<String>> notImplMethods, String instructions) {
-        this.serverDockerImg = serverDockerImg;
+    public ServerBuildResponse(String serverDockerFile, byte[] serverZipFile, Map<String, List<String>> notImplMethods, String instructions) {
+        this.serverDockerFile = serverDockerFile;
         this.serverZipFile = serverZipFile;
         this.notImplMethods = notImplMethods;
         this.instructions = instructions;
@@ -20,12 +20,12 @@ public class ServerBuildResponse {
     public ServerBuildResponse() {
     }
 
-    public byte[] getServerDockerImg() {
-        return serverDockerImg;
+    public String getServerDockerFile() {
+        return serverDockerFile;
     }
 
-    public void setServerDockerImg(byte[] serverDockerImg) {
-        this.serverDockerImg = serverDockerImg;
+    public void setServerDockerFile(String serverDockerFile) {
+        this.serverDockerFile = serverDockerFile;
     }
 
     public byte[] getServerZipFile() {

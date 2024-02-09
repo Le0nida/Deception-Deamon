@@ -1,1 +1,16 @@
-{"id":1,"first_name":"Leigha","last_name":"Lavens","email":"llavens0@hexun.com","username":"llavens0","password":"$2a$04$E2rcxA.0yR.F5UgOZiwFp.1xSnWpXCFFe83JTauj.68CftdM657oa","gender":"Female","ipaddress":"254.200.155.43","address":{"street":"2933 Farragut Place","city":"Lembongan Kawan","state":null,"zipcode":null},"phone_number":"+62 (643) 733-0126","job_title":"Software Consultant","department":"Sales","company":{"name":"Ntag","industry":"Real Estate Investment Trusts"},"isActive":true}
+{
+  "id": 1,
+  "first_name": "Philly",
+  "last_name": "Moxsom",
+  "email": "pmoxsom0@usa.gov",
+  "username": "pmoxsom0",
+  "password": "$2a$04$q9FVxkQgg1lIoAHMlYITTeWImyCnfAOCNOsVLtcFG0sDzvlpaPv6W",
+  "gender": "Female",
+  "ipaddress": "60.209.192.44",
+  "address_id": 1,
+  "phone_number": "+62 (469) 972-0554",
+  "job_title": "Accounting Assistant III",
+  "department": "Legal",
+  "company_id": 1,
+  "isActive": true
+}

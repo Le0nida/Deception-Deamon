@@ -1,14 +1,13 @@
 package cybersec.deception.deamon.utils;
 
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Component
 public class YAMLUtils {
 
     public static Map<String, List<String>> getComponentsProperties(String yamlString) {
@@ -59,9 +58,12 @@ public class YAMLUtils {
     private static List<String> extractProperties(Map<String, Object> schemaProperties) {
         List<String> properties = new ArrayList<>();
 
-        for (Map.Entry<String, Object> entry : schemaProperties.entrySet()) {
-            String propertyName = entry.getKey();
-            properties.add(propertyName);
+
+        Map<String, List<String>> propMap = (Map<String, List<String>>) schemaProperties.get("properties");
+
+        Set<Map.Entry<String, List<String>>> s = propMap.entrySet();
+        for (Map.Entry<String, List<String>> entry : s) {
+            properties.add(entry.getKey());
         }
 
         return properties;

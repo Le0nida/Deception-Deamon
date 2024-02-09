@@ -258,4 +258,9 @@ public class FileUtils {
         }
         directory.delete();
     }
+
+    public static boolean existsFile(String filePath) {
+        File file = new File(filePath);
+        return file.exists();
+    }
 }

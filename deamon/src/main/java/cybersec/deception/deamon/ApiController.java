@@ -1,6 +1,5 @@
 package cybersec.deception.deamon;
 
-import cybersec.deception.deamon.services.DockerHubBuildService;
 import cybersec.deception.deamon.services.ManagePersistenceService;
 import cybersec.deception.deamon.services.ServerBuildingService;
 import cybersec.deception.deamon.utils.FileUtils;
@@ -15,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,14 +29,15 @@ public class ApiController {
 
     @Value("${instructions.server}")
     private String instructionTxtPath;
+
+    @Value("${dockerfile.path}")
+    private String dockerFilePath;
     private final ServerBuildingService serverBuildingService;
-    private final DockerHubBuildService dockerService;
     private final ManagePersistenceService persistenceService;
 
     @Autowired
-    public ApiController(ServerBuildingService serverBuildingService, DockerHubBuildService dockerService, ManagePersistenceService persistenceService) {
+    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService) {
         this.serverBuildingService = serverBuildingService;
-        this.dockerService = dockerService;
         this.persistenceService = persistenceService;
     }
 
@@ -66,22 +68,19 @@ public class ApiController {
                 this.persistenceService.setupDatabase(yamlSpecString);
             }
 
-            byte[] zipFileContent = new byte[0];
-            byte[] serverDockerImg = new byte[0];
-            String instructionsContent = "";
+            byte[] zipFileContent;
+            String serverDockerFile;
+            String instructionsContent;
             try {
                 zipFileContent = this.serverBuildingService.getZip();
                 instructionsContent = FileUtils.readFileContent(instructionTxtPath);
-                serverDockerImg = this.dockerService.buildServerDockerImg();
+                serverDockerFile = FileUtils.readFileContent(dockerFilePath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             response.setServerZipFile(zipFileContent);
             response.setInstructions(instructionsContent);
-            //response.setServerDockerImg(serverDockerImg);
-
-
-            // TODO restituisco l'immagine docker "deamon"
+            response.setServerDockerFile(serverDockerFile);
 
             // svuoto la directory con il server generato
             this.serverBuildingService.cleanDirectory();
@@ -92,14 +91,6 @@ public class ApiController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore durante la validazione OpenAPI");
         }
     }
-
-
-    @PostMapping("/buildDockerImagine")
-    public ResponseEntity<String> buildDockerImage(@RequestParam("zipFile") MultipartFile zipFile) {
-
-        return null;
-    }
-
 
     @PostMapping("/validateOpenAPISpec")
     public ResponseEntity<String> validateOpenAPI(@RequestBody String yamlString) {
