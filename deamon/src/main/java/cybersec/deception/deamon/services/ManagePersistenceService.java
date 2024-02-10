@@ -77,7 +77,7 @@ public class ManagePersistenceService {
                         // Step 4.c: genero il file EntityRepository
                         createRepositoryInterface(entityName);
 
-                        List<String> updatedControllerContent = MethodsGeneration.generateJPACRUD(controllerContent, entityName);
+                        List<String> updatedControllerContent = MethodsGeneration.generateMethods(controllerContent, entityName);
                         FileUtils.scriviFile(file.getAbsolutePath(), updatedControllerContent);
 
                         break;

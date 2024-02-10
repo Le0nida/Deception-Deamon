@@ -1,5 +1,6 @@
 package cybersec.deception.deamon.utils.servermanipulation;
 
+import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,12 @@ public class ApplPropUtils {
     private static String username;
     private static String password;
     private static String appPropertiesPath;
+    private static String instructionTxtPath;
+
+    @Value("${instructions.server}")
+    public void setInstructionTxtPath(String instructionTxtPath) {
+        ApplPropUtils.instructionTxtPath = instructionTxtPath;
+    }
 
     @Value("${database.driverclass}")
     public void setDriverClass(String driverClass) {
@@ -72,6 +79,8 @@ public class ApplPropUtils {
 
         String encriptionKey = TokenUtils.generateEncryptionKey();
         String decryptedToken = TokenUtils.generateToken(32);
+        // aggiungo il token cifrato al file di istruzioni
+        FileUtils.replaceStringInFile(instructionTxtPath, "TOKEN_TO_INSERT", TokenUtils.encryptToken(encriptionKey, decryptedToken));
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
 
             writer.newLine();

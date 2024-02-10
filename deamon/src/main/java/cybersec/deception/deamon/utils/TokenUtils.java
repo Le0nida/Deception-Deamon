@@ -2,8 +2,10 @@ package cybersec.deception.deamon.utils;
 
 import org.springframework.stereotype.Component;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -18,11 +20,10 @@ public class TokenUtils {
             keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
             System.err.println("Errore Generating the Key");
-            return generateToken(32);
+            return generateToken(24);
         }
 
-        // Imposta la lunghezza della chiave (128, 192 o 256 bits)
-        keyGenerator.init(256);
+        keyGenerator.init(192);
 
         // Genera la chiave segreta
         SecretKey secretKey = keyGenerator.generateKey();
@@ -34,6 +35,23 @@ public class TokenUtils {
         System.out.println("Generated Key: " + encodedKey);
 
         return encodedKey;
+    }
+
+    public static String encryptToken(String encryptionKey, String token) {
+        try {
+            byte[] keyBytes = encryptionKey.getBytes();
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            byte[] encryptedBytes = cipher.doFinal(token.getBytes());
+
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static String generateToken(int length) {

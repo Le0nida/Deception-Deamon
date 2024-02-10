@@ -4,6 +4,8 @@ import io.swagger.log.logmodel.LogRequest;
 import io.swagger.log.logmodel.LogResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +28,7 @@ public class LogController {
     private String decryptedKey;
 
     @PostMapping("/logs")
-    public LogResponse getLogs(@RequestBody LogRequest logRequest) {
+    public ResponseEntity<LogResponse> getLogs(@RequestBody LogRequest logRequest) {
         LogResponse response = new LogResponse();
         if (logRequest != null && logRequest.getToken() != null) {
             String decryptedToken = decryptToken(logRequest.getToken());
@@ -46,7 +48,7 @@ public class LogController {
         else {
             response.setMessage("Token null");
         }
-        return response;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private String decryptToken(String encryptedToken) {
