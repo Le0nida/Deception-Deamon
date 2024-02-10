@@ -1,18 +1,39 @@
 package cybersec.deception.deamon.utils.servermanipulation;
 
 import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.*;
 
-public class NotImplFileUtils {
+@Component
+public class ControllerFilesUtils {
 
     private static String apiFolder;
 
     @Value("${folder.api}")
-    public void setDriverClass(String apiFolder) {
-        NotImplFileUtils.apiFolder = apiFolder;
+    public void setApiFolder(String apiFolder) {
+        ControllerFilesUtils.apiFolder = apiFolder;
+    }
+
+    public static List<File> getControllers() {
+
+        List<File> files = new ArrayList<>();
+
+        File folderAPI = new File(apiFolder);
+        if (!folderAPI.exists() || !folderAPI.isDirectory()) {
+            System.err.println("La cartella API non esiste");
+            return files;
+        }
+
+        for (File file : Objects.requireNonNull(folderAPI.listFiles())) {
+            if (file.getName().contains("Controller")) {
+                files.add(file);
+            }
+        }
+        return files;
     }
 
     public static String getNotImplementedMethods() {
@@ -85,6 +106,28 @@ public class NotImplFileUtils {
 
         }
         return methods;
+    }
+
+    public static void substituteMethod(List<String> content, String signature, String codeToInject){
+        boolean found = false, alreadyFound = false;
+        for (int i = 0; i < content.size(); i++) {
+            String line = content.get(i);
+            if (line.contains(signature)) {
+                found = true;
+                continue;
+            }
+            if (found) {
+                content.set(i, codeToInject);
+                found = false;
+                alreadyFound = true;
+            }
+            else if (alreadyFound) {
+                content.set(i, "null");
+                if (line.contains(">(HttpStatus.NOT_IMPLEMENTED);")) {
+                    break;
+                }
+            }
+        }
     }
 
 }

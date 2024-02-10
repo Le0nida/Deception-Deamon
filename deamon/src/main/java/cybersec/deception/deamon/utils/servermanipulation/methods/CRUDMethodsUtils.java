@@ -1,11 +1,11 @@
-package cybersec.deception.deamon.utils.servermanipulation;
+package cybersec.deception.deamon.utils.servermanipulation.methods;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class CRUDMethodsUtils {
 
-    public static String getCreateMethod(String entityName) {
+    public static String getJPACreateMethod(String entityName) {
         return
                 "String accept = request.getHeader(\"Accept\");\n" +
                 "if (accept != null && accept.equals(\"application/json\")) {\n" +
@@ -21,7 +21,7 @@ public class CRUDMethodsUtils {
     }
 
 
-    public static String getDeleteMethod(String entityName) {
+    public static String getJPADeleteMethod(String entityName) {
         return
                 "if (" + entityName.toLowerCase() + "Id != null && !equals(\"\")) {\n" +
                 "    try {\n" +
@@ -41,7 +41,7 @@ public class CRUDMethodsUtils {
     }
 
 
-    public static String getUpdateMethod(String entityName) {
+    public static String getJPAUpdateMethod(String entityName) {
         return
                 "String accept = request.getHeader(\"Accept\");\n" +
                 "if (accept != null && accept.equals(\"application/json\")) {\n" +
@@ -63,7 +63,7 @@ public class CRUDMethodsUtils {
     }
 
 
-    public static String getRetrieveMethod(String entityName) {
+    public static String getJPARetrieveMethod(String entityName) {
         return
                 "if (" + entityName.toLowerCase() + "Id != null && !equals(\"\")) {\n" +
                 "    try {\n" +
@@ -80,35 +80,5 @@ public class CRUDMethodsUtils {
                 "}\n" +
                 "return new ResponseEntity<>(HttpStatus.BAD_REQUEST);";
     }
-
-
-    public static String getLoginUserMethod() {
-        return
-                "String accept = request.getHeader(\"Accept\");\n" +
-                "if (username != null && password != null && !username.isEmpty() && !password.isEmpty()) {\n" +
-                "    if (userRepository.existsByUsername(username)) {\n" +
-                        "            return new ResponseEntity<>(\"Invalid username\", HttpStatus.OK);\n" +
-                        "        }\n" +
-                        "        // Non utilizzare valori casuali, ma valori derivati dalla password\n" +
-                        "        else if (password.contains(\"ì\") && password.contains(\"°\") && password.contains(\"e\") && password.contains(\"\\\"\") && password.contains(\"*\")) {\n" +
-                        "            return new ResponseEntity<>(\"Access Denied\", HttpStatus.UNAUTHORIZED);\n" +
-                        "        } else if (password.contains(\"ì%\") && password.contains(\"g°\") && password.contains(\"er\") && password.contains(\"ù\\\"\") && password.contains(\"?*\")) {\n" +
-                        "            return new ResponseEntity<>(\"Forbidden\", HttpStatus.FORBIDDEN);\n" +
-                        "        } else {\n" +
-                        "            return new ResponseEntity<>(\"Wrong Password\", HttpStatus.OK);\n" +
-                        "        }\n" +
-                "}\n" +
-                "return new ResponseEntity<>(HttpStatus.BAD_REQUEST);";
-    }
-    public static String getLogoutUserMethod() {
-        return
-                "return new ResponseEntity<Void>(HttpStatus.FORBIDDEN);";
-    }
-
-
-
-
-
-
 
 }

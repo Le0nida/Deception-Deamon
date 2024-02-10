@@ -1,12 +1,16 @@
 package cybersec.deception.deamon;
 
+import cybersec.deception.deamon.services.ApiUtilsService;
 import cybersec.deception.deamon.services.LoggingService;
 import cybersec.deception.deamon.services.ManagePersistenceService;
 import cybersec.deception.deamon.services.ServerBuildingService;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.model.ServerBuildResponse;
 import cybersec.deception.deamon.utils.Utils;
-import cybersec.deception.deamon.utils.servermanipulation.NotImplFileUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
+import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
+import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -21,8 +25,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -36,12 +43,14 @@ public class ApiController {
     private final ServerBuildingService serverBuildingService;
     private final ManagePersistenceService persistenceService;
     private final LoggingService logService;
+    private final ApiUtilsService apiUtilsService;
 
     @Autowired
-    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService) {
+    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService, ApiUtilsService apiUtilsService) {
         this.serverBuildingService = serverBuildingService;
         this.persistenceService = persistenceService;
         this.logService = logService;
+        this.apiUtilsService = apiUtilsService;
     }
 
     @PostMapping("/buildSpringServer")
@@ -64,15 +73,14 @@ public class ApiController {
                 // manipolo il server generato per aggiungere la gestione della persistenza
                 this.persistenceService.managePersistence(tableCode);
 
-                // genero e popolo il database
+                // genero e popolo le tabelle
                 this.persistenceService.setupDatabase(yamlSpecString, tableCode);
             }
-            else {
-                // gestione dati casuali
 
+            // aggiungo la logica per inserire delay ed errori nei metodi
+            this.apiUtilsService.addApiUtils();
 
-            }
-            // aggiungo tutta la gestione del logging
+            // aggiungo tutta la gestione del logging privato
             this.logService.manageLogging(tableCode, persistence);
 
 
@@ -85,7 +93,7 @@ public class ApiController {
                 zipFileContent = this.serverBuildingService.getZip();
                 instructionsContent = FileUtils.readFileContent(instructionTxtPath);
                 serverDockerFile = FileUtils.readFileContent(dockerFilePath);
-                notImplMethods = NotImplFileUtils.getNotImplementedMethods();
+                notImplMethods = ControllerFilesUtils.getNotImplementedMethods();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

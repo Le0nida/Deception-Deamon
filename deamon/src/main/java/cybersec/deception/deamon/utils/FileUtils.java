@@ -282,4 +282,12 @@ public class FileUtils {
                     }
                 });
     }
+
+    public static void copyFile(String sourcePath, String targetPath) {
+        try {
+            Files.copy(Path.of(sourcePath), Path.of(targetPath));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

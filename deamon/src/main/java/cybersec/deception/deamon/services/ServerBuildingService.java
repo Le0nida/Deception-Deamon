@@ -23,7 +23,6 @@ public class ServerBuildingService {
     @Value("${application.properties.location}")
     private String appPropertiesPath;
 
-
     public void buildBasicServerFromSwagger(String yamlSpecFile, String basepath){
 
         // creo la directory di destinazione del progetto genero (o la svuoto)

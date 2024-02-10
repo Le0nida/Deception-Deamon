@@ -3,8 +3,11 @@ package cybersec.deception.deamon.services;
 import cybersec.deception.deamon.utils.*;
 import cybersec.deception.deamon.utils.database.DatabaseUtils;
 import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
-import cybersec.deception.deamon.utils.servermanipulation.CRUDMethodsUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
+import cybersec.deception.deamon.utils.servermanipulation.methods.CRUDMethodsUtils;
 import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
+import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
+import cybersec.deception.deamon.utils.servermanipulation.methods.UserMethodsUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +77,7 @@ public class ManagePersistenceService {
                         // Step 4.c: genero il file EntityRepository
                         createRepositoryInterface(entityName);
 
-                        List<String> updatedControllerContent = generateJPACRUD(controllerContent, entityName);
+                        List<String> updatedControllerContent = MethodsGeneration.generateJPACRUD(controllerContent, entityName);
                         FileUtils.scriviFile(file.getAbsolutePath(), updatedControllerContent);
 
                         break;
@@ -83,10 +86,6 @@ public class ManagePersistenceService {
             }
         }
     }
-
-
-
-
 
     private void createRepositoryInterface(String entityName) {
         String str = entityName.equals("User") ? "    boolean existsByUsername(String username); \n" : "\n";
@@ -202,49 +201,7 @@ public class ManagePersistenceService {
         System.out.println("Modifiche applicate con successo.");
     }
 
-    private List<String> generateJPACRUD(List<String> controllerContent, String entityName) {
-        // Retrieve the method signatures to be replaced
-        String createMethodSignature = "public ResponseEntity<" + entityName + "> create" + entityName + "(";//@Parameter(in = ParameterIn.DEFAULT, description = \"Created " + entityName.toLowerCase() + " object\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
-        String deleteMethodSignature = "public ResponseEntity<Void> delete" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"The name that needs to be deleted\", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name)";
-        String updateMethodSignature = "public ResponseEntity<" + entityName + "> update" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"name that need to be deleted\", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name, @Parameter(in = ParameterIn.DEFAULT, description = \"Update an existent " + entityName.toLowerCase() + " in the store\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
-        String retrieveMethodSignature = "public ResponseEntity<" + entityName + "> retrieve" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"The name that needs to be fetched. Use " + entityName.toLowerCase() + "1 for testing. \", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name)";
-        if (entityName.equals("User")) {
-            String retrieveLoginSignature = "public ResponseEntity<String> login";
-            String retrieveLogoutSignature = "public ResponseEntity<String> logout";
-            substituteMethod(controllerContent, retrieveLoginSignature, CRUDMethodsUtils.getLoginUserMethod());
-            substituteMethod(controllerContent, retrieveLogoutSignature, CRUDMethodsUtils.getLogoutUserMethod());
-        }
 
-        substituteMethod(controllerContent, createMethodSignature, CRUDMethodsUtils.getCreateMethod(entityName));
-        substituteMethod(controllerContent, updateMethodSignature, CRUDMethodsUtils.getUpdateMethod(entityName));
-        substituteMethod(controllerContent, retrieveMethodSignature, CRUDMethodsUtils.getRetrieveMethod(entityName));
-        substituteMethod(controllerContent, deleteMethodSignature, CRUDMethodsUtils.getDeleteMethod(entityName));
 
-        // Rimuovo le stringhe che corrispondevano ai vecchi contenuti del metodo
-        Utils.removeEmptyStrings(controllerContent, "null");
 
-        return controllerContent;
-    }
-
-    private void substituteMethod(List<String> content, String signature, String codeToInject){
-        boolean found = false, alreadyFound = false;
-        for (int i = 0; i < content.size(); i++) {
-            String line = content.get(i);
-            if (line.contains(signature)) {
-                found = true;
-                continue;
-            }
-            if (found) {
-                content.set(i, codeToInject);
-                found = false;
-                alreadyFound = true;
-            }
-            else if (alreadyFound) {
-                content.set(i, "null");
-                if (line.contains(">(HttpStatus.NOT_IMPLEMENTED);")) {
-                    break;
-                }
-            }
-        }
-    }
 }
