@@ -1,5 +1,7 @@
-package cybersec.deception.deamon.utils;
+package cybersec.deception.deamon.utils.servermanipulation;
 
+import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;

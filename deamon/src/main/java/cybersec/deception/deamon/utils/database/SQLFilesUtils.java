@@ -1,13 +1,10 @@
-package cybersec.deception.deamon.utils;
+package cybersec.deception.deamon.utils.database;
 
+import cybersec.deception.deamon.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 @Component
@@ -27,7 +24,7 @@ public class SQLFilesUtils {
         if (FileUtils.existsFile(inputFilePath)) {
             String outputFilePath = inputFilePath.replace(".sql", "Updated.sql");
 
-            processSQLFile(inputFilePath, outputFilePath, selectedAttributes);
+            modifySQLFile(inputFilePath, outputFilePath, selectedAttributes);
 
             return outputFilePath;
         }
@@ -35,6 +32,110 @@ public class SQLFilesUtils {
             System.out.println("Il file " + inputFilePath + " non esiste");
         }
         return null;
+    }
+
+    private static boolean containsAttribute(String s, List<String> attributesOfInterest) {
+        for (String attr: attributesOfInterest) {
+            if (s.contains(" " + attr + " ")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsIndex(int index, List<Integer> indexToRemove) {
+        for (int i: indexToRemove) {
+            if (i == index) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean equalsAttribute(String s, List<String> attributesOfInterest) {
+        for (String attr: attributesOfInterest) {
+            if (s.equals(attr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String[] extractAttributesFromInsertStatement(String insertStatement) {
+        // Trova la sottostringa tra parentesi tonde che contiene i valori
+        int startIndex = insertStatement.indexOf("(");
+        int endIndex = insertStatement.indexOf(")");
+        String valuesString = insertStatement.substring(startIndex + 1, endIndex);
+
+        // Separa i valori usando la virgola come delimitatore e rimuove eventuali spazi
+        String[] values = valuesString.split(",");
+        for (int i = 0; i < values.length; i++) {
+            values[i] = values[i].trim();
+        }
+        return values;
+    }
+
+    private static String[] extractValuesFromInsertStatement(String insertStatement) {
+        // Trova la sottostringa tra parentesi tonde che contiene i valori
+        int startIndex = insertStatement.indexOf("(");
+        int endIndex = insertStatement.lastIndexOf(")");
+        String valuesString = insertStatement.substring(startIndex + 1, endIndex);
+
+        // Separa i valori usando la virgola come delimitatore e rimuove eventuali spazi
+        String[] values = valuesString.split(",");
+        for (int i = 0; i < values.length; i++) {
+            values[i] = values[i].trim();
+        }
+        return values;
+    }
+
+    private static void modifySQLFile(String inputFile, String outputFile, List<String> attributesOfInterest) {
+        List<String> list = FileUtils.leggiFile(inputFile);
+
+        List<String> output = new ArrayList<>();
+
+        for (String s: list) {
+            if (s.startsWith("insert into")) {
+                String initialString = s.substring(0, s.indexOf("(") + 1);
+                String[] singoliAttributi = extractAttributesFromInsertStatement(s);
+
+                List<Integer> toRemoveIndex = new ArrayList<>();
+                int i = 0;
+                for (String attr: singoliAttributi) {
+                    if (equalsAttribute(attr, attributesOfInterest)) {
+                        initialString += attr + ", ";
+                    }
+                    else {
+                        toRemoveIndex.add(i);
+                    }
+                    i++;
+                }
+                initialString = initialString.substring(0, initialString.lastIndexOf(", ")) + ") values (";
+
+                String[] singoliValori = extractValuesFromInsertStatement(s.substring(s.indexOf(") values")));
+                int k = 0;
+                for (String val: singoliValori) {
+                    if (!containsIndex(k, toRemoveIndex)){
+                        initialString += val + ", ";
+                    }
+                    k++;
+                }
+                initialString = initialString.substring(0, initialString.lastIndexOf(", ")) + ");";
+
+                output.add(initialString);
+            }
+            else {
+                if (s.contains("create table") || s.contains("PRIMARY KEY") || s.contains(");")) {
+                    output.add(s);
+                    continue;
+                }
+                if (containsAttribute(s, attributesOfInterest)) {
+                    output.add(s);
+                }
+            }
+        }
+
+        FileUtils.scriviFile(outputFile, output);
     }
 
     private static void processSQLFile(String inputFilePath, String outputFilePath, List<String> selectedAttributes) {

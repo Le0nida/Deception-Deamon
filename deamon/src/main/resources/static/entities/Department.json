@@ -1,1 +1,9 @@
-{"id":1,"department_name":"Product Management","manager_name":"Tabb Southey","employee_count":390,"budget":"Ruble","start_date":"8/13/2012","location":"57921 Kenwood Plaza","phone_number":"220-159-6109"}
+{
+  "department_name": "Product Management",
+  "manager_name": "Tabb Southey",
+  "employee_count": 390,
+  "budget": "Ruble",
+  "start_date": "8/13/2012",
+  "location": "57921 Kenwood Plaza",
+  "phone_number": "220-159-6109"
+}

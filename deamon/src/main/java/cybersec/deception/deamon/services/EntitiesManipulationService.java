@@ -1,16 +1,14 @@
 package cybersec.deception.deamon.services;
 
 import cybersec.deception.deamon.utils.FileUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import org.json.JSONObject;
+import java.util.Map;
 @Service
 public class EntitiesManipulationService {
 

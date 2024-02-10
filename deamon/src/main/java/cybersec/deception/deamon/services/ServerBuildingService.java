@@ -1,15 +1,12 @@
 package cybersec.deception.deamon.services;
 
 import cybersec.deception.deamon.utils.FileUtils;
-import cybersec.deception.deamon.utils.PomMavenUtils;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
+import cybersec.deception.deamon.utils.ZipUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.Objects;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 public class ServerBuildingService {
@@ -22,7 +19,6 @@ public class ServerBuildingService {
 
     @Value("${default.server.specFile}")
     private String serverSpecFileLocation;
-
 
     @Value("${application.properties.location}")
     private String appPropertiesPath;
@@ -49,55 +45,15 @@ public class ServerBuildingService {
         FileUtils.deleteFile(serverSpecFileLocation);
     }
 
+    public void cleanDirectory() {
+        FileUtils.deleteDirectory(serverDirectory);
+    }
+
     public byte[] getZip() throws IOException {
-        File sourceDirectory = new File(serverDirectory);
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(baos)) {
-
-            zipFile(sourceDirectory, sourceDirectory.getName(), zos);
-
-            zos.finish();
-            zos.flush();
-
-            byte[] zipBytes = baos.toByteArray();
-
-            // Verifica la validità del file ZIP
-            if (isZipValid(zipBytes)) {
-                return zipBytes;
-            } else {
-                throw new IOException("Il file ZIP non è valido.");
-            }
-        }
+        return ZipUtils.getZip(serverDirectory);
     }
 
-    private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOutputStream) throws IOException {
-        if (fileToZip.isDirectory()) {
-            for (File file : Objects.requireNonNull(fileToZip.listFiles())) {
-                zipFile(file, fileName + "/" + file.getName(), zipOutputStream);
-            }
-        } else {
-            try (FileInputStream fis = new FileInputStream(fileToZip)) {
-                ZipEntry zipEntry = new ZipEntry(fileName);
-                zipOutputStream.putNextEntry(zipEntry);
-
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fis.read(buffer)) != -1) {
-                    zipOutputStream.write(buffer, 0, bytesRead);
-                }
-                zipOutputStream.closeEntry();
-            }
-        }
-    }
-
-    private static boolean isZipValid(byte[] zipBytes) throws IOException {
-        try (InputStream is = new ByteArrayInputStream(zipBytes);
-             ZipArchiveInputStream zis = new ZipArchiveInputStream(is)) {
-            return zis.getNextEntry() != null;
-        }
-    }
-
-    private static void generateServerCode(String specPath, String lang, String outputDir) {
+    private void generateServerCode(String specPath, String lang, String outputDir) {
         try {
             // Utilizza java -jar per eseguire swagger-codegen-cli
             String command = "java -jar " + System.getProperty("user.home") + "/.m2/repository/io/swagger/codegen/v3/swagger-codegen-cli/3.0.29/swagger-codegen-cli-3.0.29.jar";
@@ -126,9 +82,5 @@ public class ServerBuildingService {
             throw new RuntimeException(e);
         }
         return process.waitFor();
-    }
-
-    public void cleanDirectory() {
-        FileUtils.deleteDirectory(serverDirectory);
     }
 }

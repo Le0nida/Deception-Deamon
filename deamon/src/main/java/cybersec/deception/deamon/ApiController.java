@@ -1,10 +1,12 @@
 package cybersec.deception.deamon;
 
+import cybersec.deception.deamon.services.LoggingService;
 import cybersec.deception.deamon.services.ManagePersistenceService;
 import cybersec.deception.deamon.services.ServerBuildingService;
 import cybersec.deception.deamon.utils.FileUtils;
-import cybersec.deception.deamon.utils.ServerBuildResponse;
+import cybersec.deception.deamon.model.ServerBuildResponse;
 import cybersec.deception.deamon.utils.Utils;
+import cybersec.deception.deamon.utils.servermanipulation.NotImplFileUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -33,11 +35,13 @@ public class ApiController {
     private String dockerFilePath;
     private final ServerBuildingService serverBuildingService;
     private final ManagePersistenceService persistenceService;
+    private final LoggingService logService;
 
     @Autowired
-    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService) {
+    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService) {
         this.serverBuildingService = serverBuildingService;
         this.persistenceService = persistenceService;
+        this.logService = logService;
     }
 
     @PostMapping("/buildSpringServer")
@@ -51,35 +55,45 @@ public class ApiController {
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
 
+            String tableCode = Utils.generateRandomString(7);
+
             // genero il progetto nella directory di default
             this.serverBuildingService.buildBasicServerFromSwagger(yamlSpecString, basepath);
 
             if (persistence) {
-
                 // manipolo il server generato per aggiungere la gestione della persistenza
-                this.persistenceService.managePersistence();
-
-                // recupero la lista di nomi di operazioni non implementate
-                String notImplMethods = this.persistenceService.getNotImplementedMethods();
-                response.setNotImplMethods(notImplMethods);
+                this.persistenceService.managePersistence(tableCode);
 
                 // genero e popolo il database
-                // this.persistenceService.setupDatabase(yamlSpecString);
+                this.persistenceService.setupDatabase(yamlSpecString, tableCode);
             }
+            else {
+                // gestione dati casuali
 
+
+            }
+            // aggiungo tutta la gestione del logging
+            this.logService.manageLogging(tableCode, persistence);
+
+
+            // Costruzione della risposta
             byte[] zipFileContent;
             String serverDockerFile;
             String instructionsContent;
+            String notImplMethods;
             try {
                 zipFileContent = this.serverBuildingService.getZip();
                 instructionsContent = FileUtils.readFileContent(instructionTxtPath);
                 serverDockerFile = FileUtils.readFileContent(dockerFilePath);
+                notImplMethods = NotImplFileUtils.getNotImplementedMethods();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             response.setServerZipFile(zipFileContent);
             response.setInstructions(instructionsContent);
             response.setServerDockerFile(serverDockerFile);
+            response.setNotImplMethods(notImplMethods);
+
 
             // svuoto la directory con il server generato
             this.serverBuildingService.cleanDirectory();

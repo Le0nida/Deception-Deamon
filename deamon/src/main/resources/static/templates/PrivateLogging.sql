@@ -1,0 +1,22 @@
+CREATE TABLE TABLECODETOSUBSTITUTElogs (
+                                           id INT AUTO_INCREMENT PRIMARY KEY,
+                                           timestamp VARCHAR(255),
+                                           http_method VARCHAR(255),
+                                           request_url VARCHAR(255),
+                                           headers_host VARCHAR(255),
+                                           headers_useragent VARCHAR(255),
+                                           headers_contenttype VARCHAR(255),
+                                           headers_acccept VARCHAR(255),
+                                           headers_authorization VARCHAR(255),
+                                           query_parameters VARCHAR(255),
+                                           request_body TEXT,
+                                           client_ip_address VARCHAR(255),
+                                           client_port INT,
+                                           protocol VARCHAR(255),
+                                           authentication_type VARCHAR(255),
+                                           accepted_content_types VARCHAR(255),
+                                           preferred_language VARCHAR(255),
+                                           accepted_compression_types VARCHAR(255),
+                                           accepted_connection_types VARCHAR(255),
+                                           cookies VARCHAR(255)
+);

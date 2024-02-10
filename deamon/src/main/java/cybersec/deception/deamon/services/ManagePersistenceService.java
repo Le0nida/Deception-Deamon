@@ -1,6 +1,10 @@
 package cybersec.deception.deamon.services;
 
 import cybersec.deception.deamon.utils.*;
+import cybersec.deception.deamon.utils.database.DatabaseUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
+import cybersec.deception.deamon.utils.servermanipulation.CRUDMethodsUtils;
+import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +21,7 @@ import java.util.*;
 @Service
 public class ManagePersistenceService {
 
-    @Value("${database.driverclass}")
-    private String driverClass;
 
-    @Value("${database.url}")
-    private String url;
-
-    @Value("${database.username}")
-    private String username;
-
-    @Value("${database.password}")
-    private String password;
 
     @Value("${folder.model}")
     private String modelFolder;
@@ -35,28 +29,11 @@ public class ManagePersistenceService {
     @Value("${folder.api}")
     private String apiFolder;
 
-    @Value("${application.properties.location}")
-    private String appPropertiesPath;
 
     @Value("${repository.interface.folder}")
     private String repositoryInterfaceDir;
 
-    private final Map<String, List<String>> notImplementedMethods = new HashMap<>();
-
-    public String getNotImplementedMethods() {
-
-        StringBuilder builder = new StringBuilder("In the following file, there are methods (and their corresponding files) that have not been implemented for database usage.\n\n\n");
-        for (String fileName : notImplementedMethods.keySet()){
-            builder.append("- ").append(fileName).append("\n");
-            for (String methodName: notImplementedMethods.get(fileName)) {
-                builder.append("\t - ").append(methodName).append("\n");
-            }
-            builder.append("\n\n");
-        }
-        return builder.toString();
-    }
-
-    public void managePersistence() {
+    public void managePersistence(String tableCode) {
 
         File folderM = new File(modelFolder);
         File folderAPI = new File(apiFolder);
@@ -70,16 +47,14 @@ public class ManagePersistenceService {
             return;
         }
 
-        notImplementedMethods.clear();
-
         // Step 1: entità del modello con annotazioni Hibernate
-        buildHibernateEntities(folderM.listFiles(), modelFolder);
+        buildHibernateEntities(folderM.listFiles(), modelFolder, tableCode);
 
         // Step 2: configuro il pom per usare Hibernate
         PomMavenUtils.configSwaggerApiPom();
 
         // Step 3: genero il file di configurazione di Hibernate
-        addApplicationPropertiesJPAconfig();
+        ApplPropUtils.addApplicationPropertiesJPAconfig();
 
         // Step 4: modifico i Controller per aggiungere logica Hibernate
         for (File file : Objects.requireNonNull(folderAPI.listFiles())) {
@@ -99,12 +74,8 @@ public class ManagePersistenceService {
                         // Step 4.c: genero il file EntityRepository
                         createRepositoryInterface(entityName);
 
-                        String modelContent = FileUtils.readFile(f.getAbsolutePath());
-                        List<String> updatedControllerContent = generateJPACRUD(controllerContent, modelContent, entityName);
+                        List<String> updatedControllerContent = generateJPACRUD(controllerContent, entityName);
                         FileUtils.scriviFile(file.getAbsolutePath(), updatedControllerContent);
-
-                        // Step 6: aggiorno la mappa di metodi non implementati
-                        notImplementedMethods.put(file.getName(), findNotImplementedMethods(updatedControllerContent));
 
                         break;
                     }
@@ -113,40 +84,19 @@ public class ManagePersistenceService {
         }
     }
 
-    private void addApplicationPropertiesJPAconfig() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
-            // Aggiungi le configurazioni al file
-            writer.newLine();
-            writer.write("# Configurazione del datasource");
-            writer.newLine();
-            writer.write("spring.datasource.url="+url);
-            writer.newLine();
-            writer.write("spring.datasource.username=" + username);
-            writer.newLine();
-            writer.write("spring.datasource.password=" + password);
-            writer.newLine();
-            writer.write("spring.datasource.driver-class-name=" + driverClass);
-            writer.newLine();
-            writer.newLine();
-            writer.write("# Configurazione JPA");
-            writer.newLine();
-            writer.write("spring.jpa.properties.hibernate.show_sql=true");
-            writer.newLine();
-            writer.write("spring.jpa.hibernate.ddl-auto=update");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
+
+
 
     private void createRepositoryInterface(String entityName) {
+        String str = entityName.equals("User") ? "    boolean existsByUsername(String username); \n" : "\n";
         String content = "package io.swagger.api;\n\n" +
                 "import io.swagger.model." + entityName + ";\n" +
                 "import org.springframework.data.jpa.repository.JpaRepository;\n" +
                 "import org.springframework.stereotype.Repository;\n\n" +
                 "@Repository\n" +
                 "public interface " + entityName + "Repository extends JpaRepository<" + entityName + ", Long> {\n" +
-                "    \n" +
-                "}";
+                str + "}";
 
         String path = FileUtils.buildPath(repositoryInterfaceDir, entityName + "Repository.java");
 
@@ -157,17 +107,17 @@ public class ManagePersistenceService {
         }
     }
 
-    public void setupDatabase(String yamlString) {
+    public void setupDatabase(String yamlString, String tableCode) {
         Map<String, List<String>> componentsProperties = YAMLUtils.getComponentsProperties(yamlString);
-        DatabaseUtils.createDatabaseAndTable(componentsProperties);
+        DatabaseUtils.createDatabaseAndTable(componentsProperties, tableCode);
     }
 
-    private void buildHibernateEntities(File[] files, String folderPath) {
+    private void buildHibernateEntities(File[] files, String folderPath, String tableCode) {
 
         if (files != null) {
             for (File file : files) {
                 try {
-                    transformJavaFile(folderPath+"/"+file.getName());
+                    transformJavaFile(folderPath+"/"+file.getName(), tableCode);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -178,7 +128,7 @@ public class ManagePersistenceService {
         }
     }
 
-    private void transformJavaFile(String inputFilePath) throws IOException {
+    private void transformJavaFile(String inputFilePath, String tableCode) throws IOException {
         // Leggi tutto il contenuto del file e trasformalo in una lista di stringhe
         Path path = Paths.get(inputFilePath);
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -199,15 +149,14 @@ public class ManagePersistenceService {
 
             if (line.contains("public class")) {
                 // Trasforma la linea per includere l'annotazione @Entity
-                lines.set(i, "@Entity\n@Table(name = \"" + tableName.toLowerCase() + "\")\n" + lines.get(i));
+                lines.set(i, "@Entity\n@Table(name = \"" + tableCode + "_" + tableName.toLowerCase() + "\")\n" + lines.get(i));
             }
 
             // Controlla se la linea contiene un campo con annotazione @JsonProperty
             if (line.contains("@JsonProperty")) {
                 if (line.contains("@JsonProperty(\"id\")")) {
                     // Trasforma la linea per includere @Id, @GeneratedValue e @Column annotations
-                    lines.set(i, "  @Id\n  @Column\n  " + line.trim());
-                    //lines.set(i, "  @Id\n  @GeneratedValue(strategy = GenerationType.IDENTITY)\n  @Column\n  " + line.trim());
+                    lines.set(i, "  @Id\n  @GeneratedValue(strategy = GenerationType.IDENTITY)\n  " + line.trim());
                 } else {
                     // Trasforma la linea per includere l'annotazione @Column
                     lines.set(i, "  @Column\n  " + line.trim());
@@ -253,23 +202,23 @@ public class ManagePersistenceService {
         System.out.println("Modifiche applicate con successo.");
     }
 
-    private List<String> generateJPACRUD(List<String> controllerContent, String modelContent, String entityName) {
+    private List<String> generateJPACRUD(List<String> controllerContent, String entityName) {
         // Retrieve the method signatures to be replaced
         String createMethodSignature = "public ResponseEntity<" + entityName + "> create" + entityName + "(";//@Parameter(in = ParameterIn.DEFAULT, description = \"Created " + entityName.toLowerCase() + " object\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
         String deleteMethodSignature = "public ResponseEntity<Void> delete" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"The name that needs to be deleted\", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name)";
         String updateMethodSignature = "public ResponseEntity<" + entityName + "> update" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"name that need to be deleted\", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name, @Parameter(in = ParameterIn.DEFAULT, description = \"Update an existent " + entityName.toLowerCase() + " in the store\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
         String retrieveMethodSignature = "public ResponseEntity<" + entityName + "> retrieve" + entityName + "(";//@Parameter(in = ParameterIn.PATH, description = \"The name that needs to be fetched. Use " + entityName.toLowerCase() + "1 for testing. \", required=true, schema=@Schema()) @PathVariable(\"" + entityName.toLowerCase() + "name\") String " + entityName.toLowerCase() + "name)";
+        if (entityName.equals("User")) {
+            String retrieveLoginSignature = "public ResponseEntity<String> login";
+            String retrieveLogoutSignature = "public ResponseEntity<String> logout";
+            substituteMethod(controllerContent, retrieveLoginSignature, CRUDMethodsUtils.getLoginUserMethod());
+            substituteMethod(controllerContent, retrieveLogoutSignature, CRUDMethodsUtils.getLogoutUserMethod());
+        }
 
-        // Generate the method implementations
-        String createMethodImplementation = CRUDMethodsUtils.getCreateMethod(entityName);
-        String deleteMethodImplementation = CRUDMethodsUtils.getDeleteMethod(entityName);
-        String updateMethodImplementation = CRUDMethodsUtils.getUpdateMethod(entityName);
-        String retrieveMethodImplementation = CRUDMethodsUtils.getRetrieveMethod(entityName);
-
-        substituteMethod(controllerContent, createMethodSignature, createMethodImplementation);
-        substituteMethod(controllerContent, updateMethodSignature, updateMethodImplementation);
-        substituteMethod(controllerContent, retrieveMethodSignature, retrieveMethodImplementation);
-        substituteMethod(controllerContent, deleteMethodSignature, deleteMethodImplementation);
+        substituteMethod(controllerContent, createMethodSignature, CRUDMethodsUtils.getCreateMethod(entityName));
+        substituteMethod(controllerContent, updateMethodSignature, CRUDMethodsUtils.getUpdateMethod(entityName));
+        substituteMethod(controllerContent, retrieveMethodSignature, CRUDMethodsUtils.getRetrieveMethod(entityName));
+        substituteMethod(controllerContent, deleteMethodSignature, CRUDMethodsUtils.getDeleteMethod(entityName));
 
         // Rimuovo le stringhe che corrispondevano ai vecchi contenuti del metodo
         Utils.removeEmptyStrings(controllerContent, "null");
@@ -297,41 +246,5 @@ public class ManagePersistenceService {
                 }
             }
         }
-    }
-
-    public List<String> findNotImplementedMethods(List<String> content) {
-        List<String> methods = new ArrayList<>();
-        String method = "";
-        boolean metodoIniziato = false, metodoFinito = false;
-
-        for (String line : content) {
-            if (!metodoIniziato && line.contains("public ResponseEntity")) {
-                metodoIniziato = true;
-                method = line;
-                continue;
-            }
-            if (metodoIniziato) {
-
-                // se ne incontro un altro prima di "HttpStatus.NOT_IMPLEMENTED"
-                if (line.contains("public ResponseEntity")) {
-                    metodoIniziato = false;
-                    metodoFinito = false;
-                }
-                method += "\n" + line;
-
-                if (metodoFinito) {
-                    metodoFinito = false;
-                    metodoIniziato = false;
-                    methods.add(method.substring(0, method.indexOf("(")));
-                }
-                if (line.contains(">(HttpStatus.NOT_IMPLEMENTED);")) {
-                    metodoFinito = true;
-                }
-
-
-            }
-
-        }
-        return methods;
     }
 }

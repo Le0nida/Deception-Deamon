@@ -1,4 +1,4 @@
-package cybersec.deception.deamon.utils;
+package cybersec.deception.deamon.model;
 
 public class ServerBuildResponse {
 

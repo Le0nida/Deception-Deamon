@@ -3,6 +3,7 @@ package cybersec.deception.deamon.utils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class Utils {
@@ -52,5 +53,20 @@ public class Utils {
     public static void removeEmptyStrings(List<String> stringList) {
 
         removeEmptyStrings(stringList, "");
+    }
+
+    public static String generateRandomString(int length) {
+        String allowedCharacters = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder(length);
+        Random random = new Random();
+
+        // Genera i caratteri casuali
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(allowedCharacters.length());
+            char randomChar = allowedCharacters.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+
+        return sb.toString();
     }
 }

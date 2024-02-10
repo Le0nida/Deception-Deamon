@@ -263,4 +263,23 @@ public class FileUtils {
         File file = new File(filePath);
         return file.exists();
     }
+
+    public static void copyDirectory(String sourceDirectoryPath, String targetDirectoryPath) throws IOException {
+        // Crea un oggetto Path per la directory di origine
+        Path sourcePath = Paths.get(sourceDirectoryPath);
+
+        // Crea un oggetto Path per la directory di destinazione
+        Path targetPath = Paths.get(targetDirectoryPath);
+
+        // Copia il contenuto della directory di origine nella directory di destinazione
+        Files.walk(sourcePath)
+                .forEach(source -> {
+                    try {
+                        Path destination = targetPath.resolve(sourcePath.relativize(source));
+                        Files.copy(source, destination);
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Gestisci l'eccezione in base alle tue esigenze
+                    }
+                });
+    }
 }
