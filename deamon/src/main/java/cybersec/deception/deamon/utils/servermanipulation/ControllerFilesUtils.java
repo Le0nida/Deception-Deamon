@@ -69,6 +69,7 @@ public class ControllerFilesUtils {
             }
             builder.append("\n\n");
         }
+        builder.append("These files are available in \"\\server\\generatedServer\\src\\main\\java\\io\\swagger\\api\\\".");
         return builder.toString();
     }
 

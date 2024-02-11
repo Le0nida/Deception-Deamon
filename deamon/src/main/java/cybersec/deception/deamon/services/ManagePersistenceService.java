@@ -32,6 +32,8 @@ public class ManagePersistenceService {
     @Value("${folder.api}")
     private String apiFolder;
 
+    @Value("${entities.dir.location}")
+    private String entitiesDirectory;
 
     @Value("${repository.interface.folder}")
     private String repositoryInterfaceDir;
@@ -53,16 +55,10 @@ public class ManagePersistenceService {
         // Step 1: entità del modello con annotazioni Hibernate
         buildHibernateEntities(folderM.listFiles(), modelFolder, tableCode);
 
-        // Step 2: configuro il pom per usare Hibernate
-        PomMavenUtils.configSwaggerApiPom();
-
-        // Step 3: genero il file di configurazione di Hibernate
-        ApplPropUtils.addApplicationPropertiesJPAconfig();
-
         // Step 4: modifico i Controller per aggiungere logica Hibernate
         for (File file : Objects.requireNonNull(folderAPI.listFiles())) {
 
-            if (file.getName().contains("Controller")) {
+            if (file.getName().contains("Controller") && isDefaultEntity(file.getName().replace("ApiController.java",""))) {
 
                 // Step 4.a: genero import ed annotazioni
                 aggiungiImportAnnotazioni(file.getAbsolutePath(), file.getName().replace("ApiController.java",""));
@@ -85,6 +81,19 @@ public class ManagePersistenceService {
                 }
             }
         }
+    }
+
+    private boolean isDefaultEntity(String entityName) {
+        File[] files = FileUtils.getFilesFilteredByExtension(entitiesDirectory, ".json");
+        if (files != null) {
+            for (File f: files) {
+                if (f.getName().replace(".json","").equals(entityName)) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 
     private void createRepositoryInterface(String entityName) {
@@ -116,7 +125,9 @@ public class ManagePersistenceService {
         if (files != null) {
             for (File file : files) {
                 try {
-                    transformJavaFile(folderPath+"/"+file.getName(), tableCode);
+                    if (isDefaultEntity(file.getName().replace(".java",""))) {
+                        transformJavaFile(folderPath+"/"+file.getName(), tableCode);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

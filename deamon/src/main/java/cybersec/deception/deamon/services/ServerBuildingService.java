@@ -1,12 +1,17 @@
 package cybersec.deception.deamon.services;
 
 import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
+import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
 import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
 import cybersec.deception.deamon.utils.ZipUtils;
+import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ServerBuildingService {
@@ -42,6 +47,12 @@ public class ServerBuildingService {
 
         // configuro il pom.xml
         PomMavenUtils.configureDefaultPom();
+
+        // Step 2: configuro il pom per usare Hibernate
+        PomMavenUtils.configSwaggerApiPom();
+
+        // Step 3: genero il file di configurazione di Hibernate
+        ApplPropUtils.addApplicationPropertiesJPAconfig();
 
         // Modifico il path base
         FileUtils.replaceStringInFile(appPropertiesPath, "server.servlet.contextPath=/api/v3", "server.servlet.contextPath=/"+ basepath);
@@ -90,7 +101,25 @@ public class ServerBuildingService {
     }
 
     public void removeDocs() {
-        FileUtils.replaceStringInFile(homeControllerPath, "redirect:/swagger-ui/)", "");
+        FileUtils.replaceStringInFile(homeControllerPath, "redirect:/swagger-ui/", "");
         FileUtils.replaceStringInFile(swaggerUIConfigPath, "registry.addViewController(\"/swagger-ui/\")", "//registry.addViewController(\"/swagger-ui/\")");
+    }
+
+    public void buildNotImplementedMethods() {
+        for (File f: ControllerFilesUtils.getControllers()) {
+            FileUtils.scriviFile(f.getAbsolutePath(), adddImportDate(MethodsGeneration.modifyNotImpl(FileUtils.leggiFile(f.getAbsolutePath()))));
+        }
+    }
+
+    private List<String> adddImportDate(List<String> righe) {
+        List<String> newContent = new ArrayList<>();
+        for (String riga : righe) {
+            newContent.add(riga);
+            if (riga.contains("import javax.servlet.http.HttpServletRequest;")) {
+                newContent.add("import java.util.Date;\n");
+            }
+
+        }
+        return newContent;
     }
 }

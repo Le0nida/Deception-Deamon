@@ -102,7 +102,7 @@ public class LoggingService {
                 foundMethod = true;
             }
 
-            if (riga.contains("{") && foundMethod) {
+            if (riga.contains(") {") && foundMethod) {
                 newContent.add("        logService.log(request);\n");
                 foundMethod = false;
             }

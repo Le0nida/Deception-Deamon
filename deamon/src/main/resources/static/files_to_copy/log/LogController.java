@@ -38,11 +38,11 @@ public class LogController {
                     response.setMessage("OK");
                 }
                 else {
-                    response.setMessage("Decryption problem");
+                    response.setMessage("Invalid token");
                 }
             }
             else {
-                response.setMessage("Invalid token");
+                response.setMessage("Decryption problem");
             }
         }
         else {

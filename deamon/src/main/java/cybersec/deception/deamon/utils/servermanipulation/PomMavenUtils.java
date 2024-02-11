@@ -40,6 +40,7 @@ public class PomMavenUtils {
         // Creo le dipendenze da aggiungere
         List<Element> elements = new ArrayList<>();
         elements.add(createJAXBDependency(doc));
+        elements.add(createCommonsLangDependency(doc));
 
         // Aggiungo le dipendenze al document
         addDependencyToPom(doc, elements);
@@ -162,6 +163,10 @@ public class PomMavenUtils {
     }
     private static Element createJPADependency(Document document) {
         return createDependency(document, "org.springframework.data", "spring-data-jpa", "2.1.19.RELEASE");
+    }
+
+    private static Element createCommonsLangDependency(Document document) {
+        return createDependency(document, "org.apache.commons", "commons-lang3", "3.13.0");
     }
 
     private static Element createDependency(Document document, String groupId, String artifactId, String version) {

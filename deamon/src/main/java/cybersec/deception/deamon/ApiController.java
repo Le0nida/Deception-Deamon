@@ -82,6 +82,12 @@ public class ApiController {
                 this.persistenceService.setupDatabase(yamlSpecString, tableCode);
             }
 
+            String notImplMethods = ControllerFilesUtils.getNotImplementedMethods();
+
+            if (!persistence) {
+                this.serverBuildingService.buildNotImplementedMethods();
+            }
+
             // aggiungo la logica per inserire delay ed errori nei metodi
             this.apiUtilsService.addApiUtils();
 
@@ -93,12 +99,10 @@ public class ApiController {
             byte[] zipFileContent;
             String serverDockerFile;
             String instructionsContent;
-            String notImplMethods;
             try {
                 zipFileContent = this.serverBuildingService.getZip();
                 instructionsContent = FileUtils.readFileContent(instructionTxtPath);
                 serverDockerFile = FileUtils.readFileContent(dockerFilePath);
-                notImplMethods = ControllerFilesUtils.getNotImplementedMethods();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

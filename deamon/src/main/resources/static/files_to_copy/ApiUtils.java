@@ -1,7 +1,11 @@
 package io.swagger.api;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import java.util.Date;
 import java.util.Random;
 
 @Service
@@ -29,6 +33,19 @@ public class ApiUtils {
     public boolean shouldThrowException() {
         Random random = new Random();
         return random.nextDouble() < 0.1; // Probabilità del 10% di generare un'eccezione
+    }
+
+    // Metodo per generare un'eccezione casuale
+    public HttpStatus getExceptionToThrow(HttpServletRequest request) {
+        Date d = new Date(request.getSession().getCreationTime());
+        String minutes = ""+d.getMinutes();
+        if (minutes.contains(""+7)) {
+            return HttpStatus.METHOD_NOT_ALLOWED;
+        }
+        else if (minutes.contains(""+8)) {
+            return HttpStatus.NOT_ACCEPTABLE;
+        }
+        return null;
     }
 
 }

@@ -114,8 +114,11 @@ public class EntitiesManipulationService {
             }
 
             if (found) {
-                if (line.trim().equals("}")) {
+                if (line.trim().equals("}") || line.trim().equals("},")) {
                     found = false;
+                    if (line.trim().equals("},")) {
+                        line = line.replace(",", "");
+                    }
                 }
                 sb.append(line).append("\n");
             }

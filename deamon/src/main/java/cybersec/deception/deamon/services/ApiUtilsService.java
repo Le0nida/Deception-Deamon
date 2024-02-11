@@ -48,11 +48,14 @@ public class ApiUtilsService {
                 foundMethod = true;
             }
 
-            if (riga.contains("{") && foundMethod) {
+            if (riga.contains(") {") && foundMethod) {
                 newContent.add( "       apiUtils.simulateRandomDelay();\n" +
                                 "       if (apiUtils.shouldThrowException()) {\n" +
                                 "           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);\n" +
-                                "       }\n\n");
+                                "       }\n" +
+                                "       if (apiUtils.getExceptionToThrow(request) != null) {\n" +
+                                "            return new ResponseEntity<>(apiUtils.getExceptionToThrow(request));\n" +
+                                "       }\n");
                 foundMethod = false;
             }
         }
