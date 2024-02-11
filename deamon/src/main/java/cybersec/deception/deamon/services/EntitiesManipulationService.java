@@ -1,6 +1,7 @@
 package cybersec.deception.deamon.services;
 
 import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.Utils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,24 +9,31 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
 @Service
 public class EntitiesManipulationService {
 
     @Value("${entities.dir.location}")
     private String entitiesDirectory;
 
+    @Value("${entities.number}")
+    private int numberOfEntity;
 
     // CRUD methods for entities
 
-    public String retrieve(String fileName){
+    public String retrieve(String filePath){
 
-        fileName = FileUtils.validateJsonFileName(fileName);
-        assert fileName != null;
+        filePath = FileUtils.validateJsonFileName(filePath);
+        assert filePath != null;
 
-        File file = new File(fileName);
+        File file = new File(filePath);
         if (file.exists()) {
-            return FileUtils.readFileContent(file.getAbsolutePath());
+            List<String> content = FileUtils.leggiFile(file.getAbsolutePath());
+            return getRandomEntity(content);
         } else {
             System.err.println("Il file non esiste o il percorso non è valido.");
         }
@@ -37,9 +45,82 @@ public class EntitiesManipulationService {
         Map<String, String> fileContentsMap;
 
         File[] files = FileUtils.getFilesFilteredByExtension(entitiesDirectory, ".json");
-        fileContentsMap = FileUtils.readFilesContent(files);
+        fileContentsMap = readJsonContent(files);
 
         return fileContentsMap;
+    }
+
+    private Map<String, String> readJsonContent(File[] files){
+        Map<String, String> fileContentsMap = new HashMap<>();
+        if (!Utils.isNullOrEmpty(files)) {
+            for (File file : files) {
+                String fileName = file.getName();
+                String key = fileName.substring(0, fileName.lastIndexOf('.'));
+                List<String> content = FileUtils.leggiFile(file.getAbsolutePath());
+
+                String json = getRandomEntity(content);
+
+                fileContentsMap.put(key, json);
+            }
+        }
+        return fileContentsMap;
+    }
+
+    public String getRandomEntityByName(String entityName) {
+        File[] files = FileUtils.getFilesFilteredByExtension(entitiesDirectory, ".json");
+        if (files != null) {
+            for (File f: files) {
+                if (f.getName().replace(".json","").equals(entityName)) {
+                    return getRandomEntity(FileUtils.leggiFile(f.getAbsolutePath()));
+                }
+            }
+
+        }
+        return "";
+    }
+
+    public String getMultiRandomEntityByName(String entityName) {
+        File[] files = FileUtils.getFilesFilteredByExtension(entitiesDirectory, ".json");
+        if (files != null) {
+            for (File f: files) {
+                if (f.getName().replace(".json","").equals(entityName)) {
+                    Random random = new Random();
+                    StringBuilder sb =  new StringBuilder("[ \n");
+
+                    for (int i = 0; i < random.nextInt(5, 50); i++) {
+                        sb.append(getRandomEntity(FileUtils.leggiFile(f.getAbsolutePath()))).append(",\n");
+                    }
+                    return sb.toString();
+                }
+            }
+
+        }
+        return "";
+    }
+
+    public String getRandomEntity(List<String> content) {
+        StringBuilder sb = new StringBuilder();
+        int entity = new Random().nextInt(numberOfEntity);
+        boolean found = false;
+        int elementsnum = 0;
+        for (String line : content) {
+
+            // posso fare questo controllo perchè i miei oggetti non hanno altri oggeti innestati
+            if (line.trim().equals("{")) {
+                if (!found && elementsnum == entity) {
+                    found = true;
+                }
+                elementsnum++;
+            }
+
+            if (found) {
+                if (line.trim().equals("}")) {
+                    found = false;
+                }
+                sb.append(line).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     public boolean create(String fileName, String jsonString) {

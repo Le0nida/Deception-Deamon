@@ -11,10 +11,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/entities")
 public class EntitiesController {
-
-    // TODO: gestione responseEntities con errori più precisi e più casi
-    // TODO: inserimento validazione input nella classe Service
-
    private final EntitiesManipulationService entManipulationService;
 
    @Autowired

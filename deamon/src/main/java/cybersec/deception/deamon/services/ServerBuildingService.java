@@ -23,6 +23,12 @@ public class ServerBuildingService {
     @Value("${application.properties.location}")
     private String appPropertiesPath;
 
+    @Value("${swagger.home}")
+    private String homeControllerPath;
+
+    @Value("${swagger.config}")
+    private String swaggerUIConfigPath;
+
     public void buildBasicServerFromSwagger(String yamlSpecFile, String basepath){
 
         // creo la directory di destinazione del progetto genero (o la svuoto)
@@ -81,5 +87,10 @@ public class ServerBuildingService {
             throw new RuntimeException(e);
         }
         return process.waitFor();
+    }
+
+    public void removeDocs() {
+        FileUtils.replaceStringInFile(homeControllerPath, "redirect:/swagger-ui/)", "");
+        FileUtils.replaceStringInFile(swaggerUIConfigPath, "registry.addViewController(\"/swagger-ui/\")", "//registry.addViewController(\"/swagger-ui/\")");
     }
 }

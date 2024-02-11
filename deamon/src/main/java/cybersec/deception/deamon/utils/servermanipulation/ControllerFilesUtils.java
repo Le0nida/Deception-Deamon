@@ -50,7 +50,7 @@ public class ControllerFilesUtils {
         for (File file : Objects.requireNonNull(folderAPI.listFiles())) {
             if (file.getName().contains("Controller")) {
                 List<String> controllerContent = FileUtils.leggiFile(file.getAbsolutePath());
-                List<String> list = findNotImplementedMethods(controllerContent);
+                List<String> list = MethodsGeneration.getNotImplementedMethods(controllerContent, file.getName().replace("ApiController.java", ""));
                 if (!list.isEmpty()) {
                     notImplementedMethods.put(file.getName(), list);
                 }
@@ -70,42 +70,6 @@ public class ControllerFilesUtils {
             builder.append("\n\n");
         }
         return builder.toString();
-    }
-
-    private static List<String> findNotImplementedMethods(List<String> content) {
-        List<String> methods = new ArrayList<>();
-        String method = "";
-        boolean metodoIniziato = false, metodoFinito = false;
-
-        for (String line : content) {
-            if (!metodoIniziato && line.contains("public ResponseEntity")) {
-                metodoIniziato = true;
-                method = line;
-                continue;
-            }
-            if (metodoIniziato) {
-
-                // se ne incontro un altro prima di "HttpStatus.NOT_IMPLEMENTED"
-                if (line.contains("public ResponseEntity")) {
-                    metodoIniziato = false;
-                    metodoFinito = false;
-                }
-                method += "\n" + line;
-
-                if (metodoFinito) {
-                    metodoFinito = false;
-                    metodoIniziato = false;
-                    methods.add(method.substring(0, method.indexOf("(")));
-                }
-                if (line.contains(">(HttpStatus.NOT_IMPLEMENTED);")) {
-                    metodoFinito = true;
-                }
-
-
-            }
-
-        }
-        return methods;
     }
 
     public static void substituteMethod(List<String> content, String signature, String codeToInject){

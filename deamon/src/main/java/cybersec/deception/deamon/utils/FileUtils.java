@@ -182,20 +182,6 @@ public class FileUtils {
         }
     }
 
-    public static Map<String, String> readFilesContent(File[] files){
-        Map<String, String> fileContentsMap = new HashMap<>();
-        if (!Utils.isNullOrEmpty(files)) {
-            for (File file : files) {
-                String fileName = file.getName();
-                String key = fileName.substring(0, fileName.lastIndexOf('.'));
-                String content = FileUtils.readFileContent(file.getAbsolutePath());
-
-                fileContentsMap.put(key, content);
-            }
-        }
-        return fileContentsMap;
-    }
-
     public static String validateJsonFileName(String fileName) {
         if (Utils.isNullOrEmpty(fileName)) {
             return null;

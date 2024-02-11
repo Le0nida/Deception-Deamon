@@ -53,6 +53,7 @@ public class ApiController {
         this.apiUtilsService = apiUtilsService;
     }
 
+
     @PostMapping("/buildSpringServer")
     public ResponseEntity<?> buildSpringServer(@RequestBody Map<String, Object> requestBody) {
         ServerBuildResponse response = new ServerBuildResponse();
@@ -60,7 +61,7 @@ public class ApiController {
         String yamlSpecString = (String) requestBody.get("yamlSpecString");
         boolean persistence = (boolean) requestBody.get("persistence");
         String basepath = requestBody.get("basePath") != null && !Utils.isNullOrEmpty((String) requestBody.get("basePath")) ? (String) requestBody.get("basePath") : "api";
-
+        boolean docs = (boolean) requestBody.get("docs");
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
 
@@ -68,6 +69,10 @@ public class ApiController {
 
             // genero il progetto nella directory di default
             this.serverBuildingService.buildBasicServerFromSwagger(yamlSpecString, basepath);
+
+            if (!docs) {
+                this.serverBuildingService.removeDocs();
+            }
 
             if (persistence) {
                 // manipolo il server generato per aggiungere la gestione della persistenza

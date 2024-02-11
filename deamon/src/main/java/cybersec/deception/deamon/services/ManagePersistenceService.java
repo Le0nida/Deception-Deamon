@@ -181,6 +181,7 @@ public class ManagePersistenceService {
             if (!importAggiunto && riga.contains("import javax.servlet.http.HttpServletRequest;")) {
                 nuovoContenuto.add("import org.springframework.beans.factory.annotation.Autowired;");
                 nuovoContenuto.add("import javax.transaction.Transactional;");
+                nuovoContenuto.add("import java.util.Date;");
                 importAggiunto = true;
             }
 
