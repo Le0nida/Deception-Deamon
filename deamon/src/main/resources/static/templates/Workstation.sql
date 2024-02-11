@@ -2,7 +2,7 @@ create table Workstation (
 	id INT AUTO_INCREMENT,
 	workstation VARCHAR(50),
 	employee VARCHAR(50),
-	rootpwd VARCHAR(50),
+	rootpwd VARCHAR(200),
     PRIMARY KEY (id)
 );
 insert into Workstation (workstation, employee, rootpwd) values ('55-543-1704', 'akachel0@timesonline.co.uk', '18dd7c014e957574f70f8f04a4303e73a62b040c07293d468c1a24e0f58332af');
