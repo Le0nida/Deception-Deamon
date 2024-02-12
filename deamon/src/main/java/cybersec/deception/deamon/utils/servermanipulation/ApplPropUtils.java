@@ -1,5 +1,6 @@
 package cybersec.deception.deamon.utils.servermanipulation;
 
+import cybersec.deception.deamon.model.SecurityConfig;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,4 +96,35 @@ public class ApplPropUtils {
         }
     }
 
+    public static void addApplicationPropertiesSecurityConfig(SecurityConfig config) {
+
+        // implicit e authcode sono uguali ma implicit non ha il secret
+        // anche pwd non aggiunge nulla
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
+            writer.newLine();
+            writer.newLine();
+            writer.write("# Configurazione della sicurezza oauth");
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-id="+config.getClient_id());
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-secret="+config.getClient_secret());
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.authorization-grant-type=" + config.getFlowType());
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.redirect-uri-template={baseUrl}/login/oauth2/code/{registrationId}");
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-name=RestApiServer");
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.registration.petstore_auth.scope=" + config.getScopesInString());
+            writer.newLine();
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.provider.petstore_auth.authorization-uri=" + config.getAuthorizationUri());
+            writer.newLine();
+            writer.write("spring.security.oauth2.client.provider.petstore_auth.token-uri=" + config.getTokenUri());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

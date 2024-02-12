@@ -43,9 +43,9 @@ public class LoggingService {
         }
 
         // aggiungo i parametri di configurazione di JPA (se non è già stato fatto)
-        if (!persistence) {
-            ApplPropUtils.addApplicationPropertiesJPAconfig();
-        }
+        //if (!persistence) {
+        //    ApplPropUtils.addApplicationPropertiesJPAconfig();
+        //}
 
         // Aggiungo infromazioni di cifratura per il log
         ApplPropUtils.addApplicationPropertiesCryptoConfig();

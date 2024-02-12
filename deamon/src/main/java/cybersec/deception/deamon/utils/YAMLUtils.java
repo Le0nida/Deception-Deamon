@@ -3,8 +3,6 @@ package cybersec.deception.deamon.utils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileReader;
-import java.io.Reader;
 import java.util.*;
 
 @Component

@@ -102,6 +102,24 @@ public class PomMavenUtils {
         return -1;
     }*/
 
+    public static void configureSecurityPom(){
+
+        // Recupero il documento
+        Document doc = getPomDocument(pomPath);
+
+        // Creo le dipendenze da aggiungere
+        List<Element> elements = new ArrayList<>();
+        elements.add(createSecurityStarterDependency(doc));
+        elements.add(createSecurityOauth2ClientDependency(doc));
+        elements.add(createSecurityOauth2JoseDependency(doc));
+
+        // Aggiungo le dipendenze al document
+        addDependencyToPom(doc, elements);
+
+        // Aggiorno il pom
+        updateDom(doc, pomPath);
+    }
+
     private static Document getPomDocument (String path) {
         // Crea il documento DOM dal file esistente
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -167,6 +185,18 @@ public class PomMavenUtils {
 
     private static Element createCommonsLangDependency(Document document) {
         return createDependency(document, "org.apache.commons", "commons-lang3", "3.13.0");
+    }
+
+    private static Element createSecurityOauth2JoseDependency(Document document) {
+        return createDependency(document, "org.springframework.security", "spring-security-oauth2-jose", null);
+    }
+
+    private static Element createSecurityOauth2ClientDependency(Document document) {
+        return createDependency(document, "org.springframework.security", "spring-security-oauth2-client", null);
+    }
+
+    private static Element createSecurityStarterDependency(Document document) {
+        return createDependency(document, "org.springframework.boot", "spring-boot-starter-security", null);
     }
 
     private static Element createDependency(Document document, String groupId, String artifactId, String version) {

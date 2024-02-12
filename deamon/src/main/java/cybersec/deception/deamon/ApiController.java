@@ -1,16 +1,11 @@
 package cybersec.deception.deamon;
 
-import cybersec.deception.deamon.services.ApiUtilsService;
-import cybersec.deception.deamon.services.LoggingService;
-import cybersec.deception.deamon.services.ManagePersistenceService;
-import cybersec.deception.deamon.services.ServerBuildingService;
-import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.model.SecurityConfig;
 import cybersec.deception.deamon.model.ServerBuildResponse;
+import cybersec.deception.deamon.services.*;
+import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.Utils;
-import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
 import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
-import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
-import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -25,11 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -44,13 +36,16 @@ public class ApiController {
     private final ManagePersistenceService persistenceService;
     private final LoggingService logService;
     private final ApiUtilsService apiUtilsService;
+    private final SecurityService securityService;
+
 
     @Autowired
-    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService, ApiUtilsService apiUtilsService) {
+    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService, ApiUtilsService apiUtilsService, SecurityService securityService) {
         this.serverBuildingService = serverBuildingService;
         this.persistenceService = persistenceService;
         this.logService = logService;
         this.apiUtilsService = apiUtilsService;
+        this.securityService = securityService;
     }
 
 
@@ -62,6 +57,11 @@ public class ApiController {
         boolean persistence = (boolean) requestBody.get("persistence");
         String basepath = requestBody.get("basePath") != null && !Utils.isNullOrEmpty((String) requestBody.get("basePath")) ? (String) requestBody.get("basePath") : "api";
         boolean docs = (boolean) requestBody.get("docs");
+        SecurityConfig securityConfig = null;
+        if (requestBody.get("securityConfig") != null) {
+            securityConfig = (SecurityConfig) requestBody.get("securityConfig");
+        }
+
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
 
@@ -87,6 +87,11 @@ public class ApiController {
             if (!persistence) {
                 this.serverBuildingService.buildNotImplementedMethods();
             }
+
+            if (securityConfig != null) {
+                this.securityService.manageSecurity(securityConfig);
+            }
+
 
             // aggiungo la logica per inserire delay ed errori nei metodi
             this.apiUtilsService.addApiUtils();
