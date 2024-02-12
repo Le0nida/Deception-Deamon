@@ -81,7 +81,10 @@ public class ApplPropUtils {
         String encriptionKey = TokenUtils.generateEncryptionKey();
         String decryptedToken = TokenUtils.generateToken(32);
         // aggiungo il token cifrato al file di istruzioni
-        FileUtils.replaceStringInFile(instructionTxtPath, "TOKEN_TO_INSERT", TokenUtils.encryptToken(encriptionKey, decryptedToken));
+        String encr = TokenUtils.encryptToken(encriptionKey, decryptedToken);
+        FileUtils.replaceStringInFile(instructionTxtPath, "TOKEN_TO_INSERT", encr);
+        FileUtils.replaceStringInFile(instructionTxtPath, encr, "TOKEN_TO_INSERT");
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
 
             writer.newLine();
@@ -106,22 +109,22 @@ public class ApplPropUtils {
             writer.newLine();
             writer.write("# Configurazione della sicurezza oauth");
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-id="+config.getClient_id());
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.client-id="+config.getClient_id());
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-secret="+config.getClient_secret());
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.client-secret="+config.getClient_secret());
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.authorization-grant-type=" + config.getFlowType());
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.authorization-grant-type=" + config.getFlowType());
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.redirect-uri-template={baseUrl}/login/oauth2/code/{registrationId}");
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.redirect-uri-template={baseUrl}/login/oauth2/code/{registrationId}");
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.client-name=RestApiServer");
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.client-name=RestApiServer");
             writer.newLine();
-            writer.write("spring.security.oauth2.client.registration.petstore_auth.scope=" + config.getScopesInString());
+            writer.write("spring.security.oauth2.client.registration.defaultsecurity.scope=" + config.getScopesInString());
             writer.newLine();
             writer.newLine();
-            writer.write("spring.security.oauth2.client.provider.petstore_auth.authorization-uri=" + config.getAuthorizationUri());
+            writer.write("spring.security.oauth2.client.provider.defaultsecurity.authorization-uri=" + config.getAuthorizationUri());
             writer.newLine();
-            writer.write("spring.security.oauth2.client.provider.petstore_auth.token-uri=" + config.getTokenUri());
+            writer.write("spring.security.oauth2.client.provider.defaultsecurity.token-uri=" + config.getTokenUri());
         } catch (IOException e) {
             e.printStackTrace();
         }

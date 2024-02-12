@@ -56,7 +56,7 @@ public class DatabaseUtils {
 
             // Modifico lo script .sql in base alle entità e poi lo eseguo
             for (String fileName : entities.keySet()) {
-                //executeSqlFile("deamon/src/main/resources/static/templates/User.sql", statement);
+
                 String outputFilePath = SQLFilesUtils.getUpdatedSqlFile(fileName, entities.get(fileName));
                 if (!Utils.isNullOrEmpty(outputFilePath)) {
                     FileUtils.replaceStringInFile(outputFilePath, " " + fileName + " ", " " + tableCode + "_" + fileName.toLowerCase() + " ");

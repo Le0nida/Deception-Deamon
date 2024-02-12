@@ -1,5 +1,7 @@
 package cybersec.deception.deamon;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cybersec.deception.deamon.model.SecurityConfig;
 import cybersec.deception.deamon.model.ServerBuildResponse;
 import cybersec.deception.deamon.services.*;
@@ -59,7 +61,12 @@ public class ApiController {
         boolean docs = (boolean) requestBody.get("docs");
         SecurityConfig securityConfig = null;
         if (requestBody.get("securityConfig") != null) {
-            securityConfig = (SecurityConfig) requestBody.get("securityConfig");
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                securityConfig = mapper.readValue((String) requestBody.get("securityConfig"), SecurityConfig.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // controllo la validità del file .yaml

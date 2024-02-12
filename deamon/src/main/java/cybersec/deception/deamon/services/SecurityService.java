@@ -109,9 +109,11 @@ public class SecurityService {
 
         StringBuilder sb = new StringBuilder();
         for (String path: scopesMap.keySet()) {
-            sb.append(".antMatchers(\"").append(path).append("\")");
+            String realPath = path.split(" - ")[0];
+            String httpMethod = path.split(" - ")[1];
+            sb.append(".antMatchers(HttpMethod.").append(httpMethod).append(",\"").append(realPath).append("\")").append(".hasAnyAuthority(");;
             if (scopesMap.get(path) != null && !scopesMap.get(path).isEmpty()) {
-                sb.append(".hasAnyAuthority(");
+
                 boolean first = true;
                 for (String scope: scopesMap.get(path)) {
                     if (first) {
@@ -122,9 +124,9 @@ public class SecurityService {
                     }
                     sb.append("\"").append(scope).append("\"");
                 }
-                sb.append(")\n");
-            }
 
+            }
+            sb.append(")\n");
         }
         return sb.toString();
     }

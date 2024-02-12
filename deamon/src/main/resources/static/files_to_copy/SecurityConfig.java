@@ -1,5 +1,6 @@
 package io.swagger.configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,6 +15,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .anyRequest().permitAll()
-                .and().oauth2Login().defaultSuccessUrl("/");
+                .and().oauth2Login().defaultSuccessUrl("/").and().csrf().disable();
     }
 }

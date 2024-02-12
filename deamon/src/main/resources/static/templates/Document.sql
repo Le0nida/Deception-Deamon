@@ -1,9 +1,9 @@
 create table Document (
 	id INT AUTO_INCREMENT,
 	title VARCHAR(50),
-	author VARCHAR(50),
-	content VARCHAR(50),
-	published_at DATE,
+	author VARCHAR(100),
+	content VARCHAR(200),
+	published_at VARCHAR(50),
     PRIMARY KEY (id)
 );
 insert into Document (title, author, content, published_at) values ('Consectetuer.gif', 'kedlestone0@wikimedia.org', '5e781dd2a373063e2261ffc580ba94a2587ffa29', '14/05/2014');

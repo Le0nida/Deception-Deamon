@@ -4,7 +4,7 @@ create table Department (
 	manager_name VARCHAR(50),
 	employee_count INT,
 	budget VARCHAR(50),
-	start_date DATE,
+	start_date VARCHAR(50),
 	location VARCHAR(50),
 	phone_number VARCHAR(50),
     PRIMARY KEY (id)

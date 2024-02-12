@@ -36,7 +36,7 @@ public class SQLFilesUtils {
 
     private static boolean containsAttribute(String s, List<String> attributesOfInterest) {
         for (String attr: attributesOfInterest) {
-            if (s.contains(" " + attr + " ")) {
+            if (s.contains(" " + attr + " ") || s.contains("\t" + attr + " ")) {
                 return true;
             }
         }
