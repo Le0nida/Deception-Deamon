@@ -1,6 +1,6 @@
 # Configurazione
 
-In questo file viene spiegato come avviare i progetti Deception-Deamon e Deception-Client. E' necessario avere Docker per l'avvio del database e maven per i due progetti Spring.
+In questo file viene spiegato come avviare i progetti Deception-Deamon e Deception-Client. E' necessario avere Docker per l'avvio del database e maven per i progetti Spring.
 
 
 ## Avvio del database
@@ -16,11 +16,15 @@ In questo modo verrà avviato un container con all'interno un database mySql.
 
 ## Avvio del demone e del client
 
-Per entrambi i progetti, lanciare le task ```mvn clean``` e ```mvn install``` ed avviarli tramite il proprio IDE (io ho utilizzato IntelliJ).
+Per entrambi i progetti, lanciare le task ```mvn clean``` e ```mvn install``` ed avviarli.
 
 Il demone si avvierà sulla porta 8076, mentre il cliente sulla porta 8075. 
 
 
-# Login nel client
+### Login nel client
 
-E' possibile accedere tramite le credenziali admin admin o user user (oppure aggiungerne nel file credentials.txt
+E' possibile accedere tramite le credenziali admin admin o user user (oppure aggiungerne nel file credentials.txt)
+
+
+## Avvio RestApi Server generato 
+Per ora, non essendo hostati su cloud esterno il demone ed il client (ma tutto in locale), bisogna avviere il server generato NON da docker.
