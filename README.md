@@ -19,3 +19,8 @@ In questo modo verrà avviato un container con all'interno un database mySql.
 Per entrambi i progetti, lanciare le task ```mvn clean``` e ```mvn install``` ed avviarli tramite il proprio IDE (io ho utilizzato IntelliJ).
 
 Il demone si avvierà sulla porta 8076, mentre il cliente sulla porta 8075. 
+
+
+# Login nel client
+
+E' possibile accedere tramite le credenziali admin admin o user user (oppure aggiungerne nel file credentials.txt
