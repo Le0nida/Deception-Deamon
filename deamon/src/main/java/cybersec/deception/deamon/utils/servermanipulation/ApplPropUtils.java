@@ -83,7 +83,6 @@ public class ApplPropUtils {
         // aggiungo il token cifrato al file di istruzioni
         String encr = TokenUtils.encryptToken(encriptionKey, decryptedToken);
         FileUtils.replaceStringInFile(instructionTxtPath, "TOKEN_TO_INSERT", encr);
-        FileUtils.replaceStringInFile(instructionTxtPath, encr, "TOKEN_TO_INSERT");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
 

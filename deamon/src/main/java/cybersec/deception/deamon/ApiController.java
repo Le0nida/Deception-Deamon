@@ -123,6 +123,7 @@ public class ApiController {
             response.setServerDockerFile(serverDockerFile);
             response.setNotImplMethods(notImplMethods);
 
+            this.logService.resetInstructions();
 
             // svuoto la directory con il server generato
             this.serverBuildingService.cleanDirectory();

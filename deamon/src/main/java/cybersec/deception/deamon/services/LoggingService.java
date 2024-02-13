@@ -30,6 +30,9 @@ public class LoggingService {
     @Value("${folder.api}")
     private String apiFolder;
 
+    @Value("${instructions.server}")
+    private String instructionTxtPath;
+
     public void manageLogging(String tableCode, boolean persistence) {
 
         // aggiungo la cartella per la gestione del Logging nel server
@@ -110,5 +113,17 @@ public class LoggingService {
 
         FileUtils.scriviFile(filePath, newContent);
         System.out.println("Modifiche applicate con successo.");
+    }
+
+    public void resetInstructions() {
+        List<String> newContent = new ArrayList<>();
+        for (String s: FileUtils.leggiFile(instructionTxtPath)) {
+            if (s.contains("TOKEN")) {
+                newContent.add(" - TOKEN: TOKEN_TO_INSERT");
+                continue;
+            }
+            newContent.add(s);
+        }
+        FileUtils.scriviFile(instructionTxtPath, newContent);
     }
 }
