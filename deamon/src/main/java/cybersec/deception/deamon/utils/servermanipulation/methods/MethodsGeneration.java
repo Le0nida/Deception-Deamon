@@ -106,7 +106,7 @@ public class MethodsGeneration {
                     "                      Date d = new Date(request.getSession().getCreationTime());\n" +
                             "                      String minutes = \"\"+d.getMinutes();\n" +
                             "                      if (minutes.contains(\""+random.nextInt(6)+"\") || minutes.contains(\""+random.nextInt(6)+"\") || minutes.contains(\""+random.nextInt(6)+"\")) {\n" +
-                            "                           return new ResponseEntity<>(HttpStatus.FORBIDDEN);\n" +
+                            "                           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);\n" +
                             "                      }";
             String voidText =
                     "                       else { if (minutes.contains(\""+random.nextInt(6)+"\") || minutes.contains(\""+random.nextInt(6)+"\") || minutes.contains(\""+random.nextInt(6)+"\")) {\n" +
