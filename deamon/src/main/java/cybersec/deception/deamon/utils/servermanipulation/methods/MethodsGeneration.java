@@ -24,6 +24,8 @@ public class MethodsGeneration {
     private static final String logoutSignature = "public ResponseEntity<Void> logoutUser(";
     private static final String accessWorkstationSignature = "public ResponseEntity<String> accessWorkstation(";
     private static final String transferCryptoSignature = "public ResponseEntity<String> transfer(";
+    private static final String requestMoneySignature = "public ResponseEntity<String> requestMoney(";
+    private static final String transferMoneySignature = "public ResponseEntity<String> transferMoney(";
 
     private static void buildCRUDSignatures(String entityName){
         createMethodSignature = "public ResponseEntity<" + entityName + "> create" + entityName + "(";//@Parameter(in = ParameterIn.DEFAULT, description = \"Created " + entityName.toLowerCase() + " object\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
@@ -72,7 +74,9 @@ public class MethodsGeneration {
                     !line.trim().startsWith(logoutSignature) &&
                     !line.trim().startsWith(adminSignature) &&
                     !line.trim().startsWith(accessWorkstationSignature) &&
-                    !line.trim().startsWith(transferCryptoSignature)) {
+                    !line.trim().startsWith(transferCryptoSignature) &&
+                    !line.trim().startsWith(transferMoneySignature) &&
+                    !line.trim().startsWith(requestMoneySignature)) {
                 methodSignatures.add(line.trim());
             }
         }

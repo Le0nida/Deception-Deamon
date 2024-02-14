@@ -85,8 +85,9 @@ public class SecurityService {
     private String createAuthoritiesLine(Map<String, List<String>> scopesMap) {
 
         StringBuilder sb = new StringBuilder();
-        boolean first = true;
+
         for (String path: scopesMap.keySet()) {
+            boolean first = true;
             if (scopesMap.get(path) != null && !scopesMap.get(path).isEmpty()) {
                 sb.append(".authorities(");
                 for (String scope: scopesMap.get(path)) {
