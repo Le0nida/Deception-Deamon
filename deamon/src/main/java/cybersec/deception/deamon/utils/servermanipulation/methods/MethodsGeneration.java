@@ -18,8 +18,9 @@ public class MethodsGeneration {
     private static String updateMethodSignature;
     private static String retrieveMethodSignature;
 
-    private static final String retrieveLoginSignature = "public ResponseEntity<String> login";
-    private static final String retrieveLogoutSignature = "public ResponseEntity<Void> logout";
+    private static final String loginSignature = "public ResponseEntity<String> loginUser";
+    private static final String adminSignature = "public ResponseEntity<String> loginAdmin";
+    private static final String logoutSignature = "public ResponseEntity<Void> logoutUser";
 
     private static void buildCRUDSignatures(String entityName){
         createMethodSignature = "public ResponseEntity<" + entityName + "> create" + entityName + "(";//@Parameter(in = ParameterIn.DEFAULT, description = \"Created " + entityName.toLowerCase() + " object\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
@@ -35,13 +36,22 @@ public class MethodsGeneration {
         MethodsGeneration.entManipulationService = entManipulationService;
     }
 
-    public static List<String> getNotImplementedMethods(List<String> fileContent, String entityName){
+    public static List<String> getNotImplementedMethods(List<String> fileContent, String entityName, boolean persistence){
         // Creo le signature
         buildCRUDSignatures(entityName);
 
         List<String> result = new ArrayList<>();
-        for (String s: extractMethodSignatures(fileContent)){
-            result.add(s.substring(0, s.indexOf("(")));
+        if (persistence) {
+            for (String s: extractMethodSignatures(fileContent)){
+                result.add(s.substring(0, s.indexOf("(")));
+            }
+        }
+        else {
+            for (String line : fileContent) {
+                if (line.trim().startsWith("public ResponseEntity<")) {
+                    result.add(line.trim().substring(0, line.indexOf("(")));
+                }
+            }
         }
         return result;
     }
@@ -55,8 +65,9 @@ public class MethodsGeneration {
                     !line.trim().startsWith(deleteMethodSignature) &&
                     !line.trim().startsWith(updateMethodSignature) &&
                     !line.trim().startsWith(retrieveMethodSignature) &&
-                    !line.trim().startsWith(retrieveLoginSignature) &&
-                    !line.trim().startsWith(retrieveLogoutSignature)) {
+                    !line.trim().startsWith(loginSignature) &&
+                    !line.trim().startsWith(logoutSignature) &&
+                    !line.trim().startsWith(adminSignature)) {
                 methodSignatures.add(line.trim());
             }
         }
@@ -92,8 +103,9 @@ public class MethodsGeneration {
     }
 
     private static void generateJPAUserMethods(List<String> controllerContent) {
-        ControllerFilesUtils.substituteMethod(controllerContent, retrieveLoginSignature, UserMethodsUtils.getJPALoginUserMethod());
-        ControllerFilesUtils.substituteMethod(controllerContent, retrieveLogoutSignature, UserMethodsUtils.getJPALogoutUserMethod());
+        ControllerFilesUtils.substituteMethod(controllerContent, adminSignature, UserMethodsUtils.getJPALoginUserMethod());
+        ControllerFilesUtils.substituteMethod(controllerContent, loginSignature, UserMethodsUtils.getJPALoginUserMethod());
+        ControllerFilesUtils.substituteMethod(controllerContent, logoutSignature, UserMethodsUtils.getJPALogoutUserMethod());
     }
 
     public static List<String> modifyNotImpl(List<String> controllerContent) {

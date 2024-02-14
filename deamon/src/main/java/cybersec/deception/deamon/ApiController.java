@@ -89,7 +89,7 @@ public class ApiController {
                 this.persistenceService.setupDatabase(yamlSpecString, tableCode);
             }
 
-            String notImplMethods = ControllerFilesUtils.getNotImplementedMethods();
+            String notImplMethods = ControllerFilesUtils.getNotImplementedMethods(persistence);
 
             if (!persistence) {
                 this.serverBuildingService.buildNotImplementedMethods();

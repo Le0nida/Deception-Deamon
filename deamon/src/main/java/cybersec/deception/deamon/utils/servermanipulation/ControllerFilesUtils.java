@@ -36,7 +36,7 @@ public class ControllerFilesUtils {
         return files;
     }
 
-    public static String getNotImplementedMethods() {
+    public static String getNotImplementedMethods(boolean persistence) {
 
         File folderAPI = new File(apiFolder);
         if (!folderAPI.exists() || !folderAPI.isDirectory()) {
@@ -50,7 +50,7 @@ public class ControllerFilesUtils {
         for (File file : Objects.requireNonNull(folderAPI.listFiles())) {
             if (file.getName().contains("Controller")) {
                 List<String> controllerContent = FileUtils.leggiFile(file.getAbsolutePath());
-                List<String> list = MethodsGeneration.getNotImplementedMethods(controllerContent, file.getName().replace("ApiController.java", ""));
+                List<String> list = MethodsGeneration.getNotImplementedMethods(controllerContent, file.getName().replace("ApiController.java", ""), persistence);
                 if (!list.isEmpty()) {
                     notImplementedMethods.put(file.getName(), list);
                 }
