@@ -4,6 +4,7 @@ import cybersec.deception.deamon.services.EntitiesManipulationService;
 import cybersec.deception.deamon.utils.Utils;
 import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,9 +19,11 @@ public class MethodsGeneration {
     private static String updateMethodSignature;
     private static String retrieveMethodSignature;
 
-    private static final String loginSignature = "public ResponseEntity<String> loginUser";
-    private static final String adminSignature = "public ResponseEntity<String> loginAdmin";
-    private static final String logoutSignature = "public ResponseEntity<Void> logoutUser";
+    private static final String loginSignature = "public ResponseEntity<String> loginUser(";
+    private static final String adminSignature = "public ResponseEntity<String> loginAdmin(";
+    private static final String logoutSignature = "public ResponseEntity<Void> logoutUser(";
+    private static final String accessWorkstationSignature = "public ResponseEntity<String> accessWorkstation(";
+    private static final String transferCryptoSignature = "public ResponseEntity<String> transfer(";
 
     private static void buildCRUDSignatures(String entityName){
         createMethodSignature = "public ResponseEntity<" + entityName + "> create" + entityName + "(";//@Parameter(in = ParameterIn.DEFAULT, description = \"Created " + entityName.toLowerCase() + " object\", schema=@Schema()) @Valid @RequestBody " + entityName + " body)";
@@ -67,7 +70,9 @@ public class MethodsGeneration {
                     !line.trim().startsWith(retrieveMethodSignature) &&
                     !line.trim().startsWith(loginSignature) &&
                     !line.trim().startsWith(logoutSignature) &&
-                    !line.trim().startsWith(adminSignature)) {
+                    !line.trim().startsWith(adminSignature) &&
+                    !line.trim().startsWith(accessWorkstationSignature) &&
+                    !line.trim().startsWith(transferCryptoSignature)) {
                 methodSignatures.add(line.trim());
             }
         }
@@ -84,6 +89,10 @@ public class MethodsGeneration {
         // Genero login e logout
         if (entityName.equals("User")) {
             generateJPAUserMethods(controllerContent);
+        } else if (entityName.equals("Crypto")) {
+            generateJPACryptoMethods(controllerContent);
+        } else if (entityName.equals("Workstation")) {
+            generateJPAWorkstationMethods(controllerContent);
         }
 
         // Rimuovo le stringhe che corrispondevano ai vecchi contenuti dei metodi
@@ -106,6 +115,14 @@ public class MethodsGeneration {
         ControllerFilesUtils.substituteMethod(controllerContent, adminSignature, UserMethodsUtils.getJPALoginUserMethod());
         ControllerFilesUtils.substituteMethod(controllerContent, loginSignature, UserMethodsUtils.getJPALoginUserMethod());
         ControllerFilesUtils.substituteMethod(controllerContent, logoutSignature, UserMethodsUtils.getJPALogoutUserMethod());
+    }
+
+    private static void generateJPAWorkstationMethods(List<String> controllerContent) {
+        ControllerFilesUtils.substituteMethod(controllerContent, accessWorkstationSignature, WorkstationMethodUtils.getJPAAccessWorkstationMethod());
+    }
+
+    private static void generateJPACryptoMethods(List<String> controllerContent) {
+        ControllerFilesUtils.substituteMethod(controllerContent, transferCryptoSignature, CryptoMethodUtils.getJPATransferCryptoMethod());
     }
 
     public static List<String> modifyNotImpl(List<String> controllerContent) {

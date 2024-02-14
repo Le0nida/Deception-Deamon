@@ -1,12 +1,12 @@
 package cybersec.deception.deamon.utils.servermanipulation.methods;
 
-public class UserMethodsUtils {
+public class WorkstationMethodUtils {
 
-    public static String getJPALoginUserMethod() {
+    public static String getJPAAccessWorkstationMethod() {
         return
-                "if (username != null && password != null && !username.isEmpty() && !password.isEmpty()) {\n" +
-                "    if (userRepository.existsByUsername(username)) {\n" +
-                "            return new ResponseEntity<>(\"Invalid username\", HttpStatus.OK);\n" +
+                "if (workstation != null && password != null && !workstation.isEmpty() && !password.isEmpty()) {\n" +
+                "    if (workstationRepository.existsByWorkstation(workstation)) {\n" +
+                "            return new ResponseEntity<>(\"Invalid workstation\", HttpStatus.OK);\n" +
                 "        }\n" +
                 "        // Non utilizzare valori casuali, ma valori derivati dalla password\n" +
                 "        else if (password.contains(\"ì\") && password.contains(\"°\") && password.contains(\"e\") && password.contains(\"\\\"\") && password.contains(\"*\")) {\n" +
@@ -19,9 +19,4 @@ public class UserMethodsUtils {
                 "}\n" +
                 "return new ResponseEntity<>(HttpStatus.BAD_REQUEST);";
     }
-    public static String getJPALogoutUserMethod() {
-        return
-                "return new ResponseEntity<Void>(HttpStatus.FORBIDDEN);";
-    }
-
 }

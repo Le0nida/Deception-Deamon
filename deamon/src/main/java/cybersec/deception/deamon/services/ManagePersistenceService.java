@@ -96,7 +96,14 @@ public class ManagePersistenceService {
     }
 
     private void createRepositoryInterface(String entityName) {
-        String str = entityName.equals("User") ? "    boolean existsByUsername(String username); \n" : "\n";
+        String str = "\n";
+        if (entityName.equals("User")) {
+            str = "    boolean existsByUsername(String username); \n";
+        }
+        else if (entityName.equals("Workstation")) {
+            str = "    boolean existsByWorkstation(String workstation); \n";
+        }
+
         String content = "package io.swagger.api;\n\n" +
                 "import io.swagger.model." + entityName + ";\n" +
                 "import org.springframework.data.jpa.repository.JpaRepository;\n" +
