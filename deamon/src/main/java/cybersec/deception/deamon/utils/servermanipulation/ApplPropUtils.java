@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class ApplPropUtils {
@@ -159,6 +160,18 @@ public class ApplPropUtils {
             writer.write("spring.thymeleaf.encoding=UTF-8");
             writer.newLine();
             writer.write("spring.thymeleaf.cache="+false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addApplicationPropertiesFilteredPatternsConfig(String patterns) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
+            writer.newLine();
+            writer.newLine();
+            writer.write("# Configurazione pattern da filtrare");
+            writer.newLine();
+            writer.write("not_auth.patterns="+patterns);
         } catch (IOException e) {
             e.printStackTrace();
         }
