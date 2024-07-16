@@ -5,9 +5,6 @@ import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.List;
-
 @Service
 public class FilterService {
 

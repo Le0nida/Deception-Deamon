@@ -11,10 +11,12 @@ public class ExtraFeatureService {
 
     private final FilterService filterService;
 
+    private final SessionService sessionService;
     @Autowired
-    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService) {
+    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService, SessionService sessionService) {
         this.adminPagesService = adminPagesService;
         this.filterService = filterService;
+        this.sessionService = sessionService;
     }
 
     public void addAdminPages(String adminUsername, String adminPass) {
@@ -26,6 +28,12 @@ public class ExtraFeatureService {
     public void addNotAuthorizedFilter(String patterns) {
         if (!Utils.isNullOrEmpty(patterns)) {
             filterService.addFilterFeatures(patterns);
+        }
+    }
+
+    public void addSessionFilter(boolean sessionBool) {
+        if (sessionBool) {
+            sessionService.addSessionFeatures();
         }
     }
 }

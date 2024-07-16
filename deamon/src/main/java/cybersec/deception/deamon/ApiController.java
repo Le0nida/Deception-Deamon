@@ -73,7 +73,8 @@ public class ApiController {
         String adminUsername = (String) requestBody.get("adminCredentialsUser");
         String adminPass = (String) requestBody.get("adminCredentialsPass");
         String patterns = (String) requestBody.get("notAuthPaths");
-        
+        boolean sessionBool = (boolean) requestBody.get("sessionBool");
+
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
 
@@ -119,6 +120,9 @@ public class ApiController {
 
             // NonAuth path filter
             this.extraFeatureService.addNotAuthorizedFilter(patterns);
+
+            // Session filter
+            this.extraFeatureService.addSessionFilter(sessionBool);
 
 
             // Costruzione della risposta
