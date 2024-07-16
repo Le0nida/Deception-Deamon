@@ -11,13 +11,15 @@ public class ExtraFeatureService {
     private final FilterService filterService;
     private final SessionService sessionService;
     private final VulnerabilitiesService vulnerabilitiesService;
+    private final JWTAuthenticationService jwtAuthenticationService;
 
     @Autowired
-    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService, SessionService sessionService, VulnerabilitiesService vulnerabilitiesService) {
+    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService, SessionService sessionService, VulnerabilitiesService vulnerabilitiesService, JWTAuthenticationService jwtAuthenticationService) {
         this.adminPagesService = adminPagesService;
         this.filterService = filterService;
         this.sessionService = sessionService;
         this.vulnerabilitiesService = vulnerabilitiesService;
+        this.jwtAuthenticationService = jwtAuthenticationService;
     }
 
     public void addAdminPages(String adminUsername, String adminPass) {
@@ -41,6 +43,12 @@ public class ExtraFeatureService {
     public void addVulnerableEndpoints(boolean vulnBool, boolean persistence) {
         if (vulnBool & persistence) {
             vulnerabilitiesService.addVulnerabilitiesFeatures();
+        }
+    }
+
+    public void addJWTAuthentication(String jwtUser, String jwtPass, String jwtPaths) {
+        if (!Utils.isNullOrEmpty(jwtUser) && !Utils.isNullOrEmpty(jwtPass) && !Utils.isNullOrEmpty(jwtPaths)) {
+            jwtAuthenticationService.addJWTAuthenticationFeatures(jwtUser, jwtPass, jwtPaths);
         }
     }
 }

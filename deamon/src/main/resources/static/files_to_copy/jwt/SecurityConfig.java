@@ -2,6 +2,7 @@ package io.swagger.configuration;
 
 import io.swagger.configuration.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,7 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Value("${jwt.patterns}")
+    private String jwtPatterns;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -27,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/user/**").authenticated()
+                .antMatchers(jwtPatterns).authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
@@ -37,4 +42,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     response.getOutputStream().println("{ \"error\": \"Unauthorized - A valid JWT token is required\" }");
                 });
     }
+
+
 }

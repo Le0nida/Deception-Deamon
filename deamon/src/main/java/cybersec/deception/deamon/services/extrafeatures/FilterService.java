@@ -31,7 +31,7 @@ public class FilterService {
 
     private void copyStaticFiles() {
         // Copio i file di configurazione per il filtro
-        FileUtils.copyDirectory(FileUtils.buildPath(filterFilesSourcePath, "config"), FileUtils.buildPath(generatedConfigPath, "config"));
+        FileUtils.copyDirectory(FileUtils.buildPath(filterFilesSourcePath, "config"), FileUtils.buildPath(generatedConfigPath, "filter"));
 
         // Copio il controller per la visualizzazione della pagina di errore
         FileUtils.copyFile(FileUtils.buildPath(filterFilesSourcePath, "ErrorController.java"), FileUtils.buildPath(generatedApiPath, "ErrorController.java"));

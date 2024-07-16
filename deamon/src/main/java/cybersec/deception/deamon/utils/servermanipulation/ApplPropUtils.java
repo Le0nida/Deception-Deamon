@@ -176,4 +176,24 @@ public class ApplPropUtils {
             e.printStackTrace();
         }
     }
+
+    public static void addApplicationPropertiesJWTConfig(String user, String pass, String patterns, String secret) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
+            writer.newLine();
+            writer.newLine();
+            writer.write("# Configurazione JWT Auth");
+            writer.newLine();
+            writer.write("jwt.patterns="+patterns);
+            writer.newLine();
+            writer.write("jwt.secret="+secret);
+            writer.newLine();
+            writer.write("jwt.expiration=180000");
+            writer.newLine();
+            writer.write("jwt.password="+pass);
+            writer.newLine();
+            writer.write("jwt.username="+user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

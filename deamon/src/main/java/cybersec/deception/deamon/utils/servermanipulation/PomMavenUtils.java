@@ -137,6 +137,22 @@ public class PomMavenUtils {
         updateDom(doc, pomPath);
     }
 
+    public static void configureJWTPom() {
+
+        // Recupero il documento
+        Document doc = getPomDocument(pomPath);
+
+        // Creo le dipendenze da aggiungere
+        List<Element> elements = new ArrayList<>();
+        elements.add(createJWTDependency(doc));
+
+        // Aggiungo le dipendenze al document
+        addDependencyToPom(doc, elements);
+
+        // Aggiorno il pom
+        updateDom(doc, pomPath);
+    }
+
     private static Document getPomDocument (String path) {
         // Crea il documento DOM dal file esistente
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -179,6 +195,10 @@ public class PomMavenUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static Element createJWTDependency(Document document) {
+        return createDependency(document, "io.jsonwebtoken", "jjwt", "0.9.1");
     }
 
     private static Element createHibernateDependency(Document document) {

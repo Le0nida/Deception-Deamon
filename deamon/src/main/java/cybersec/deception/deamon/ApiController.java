@@ -75,6 +75,9 @@ public class ApiController {
         String patterns = (String) requestBody.get("notAuthPaths");
         boolean sessionBool = (boolean) requestBody.get("sessionBool");
         boolean vulnBool = (boolean) requestBody.get("vulnBool");
+        String jwtUser = (String) requestBody.get("jwtUser");
+        String jwtPass = (String) requestBody.get("jwtPassword");
+        String jwtPaths = (String) requestBody.get("jwtAuthPaths");
 
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
@@ -127,6 +130,9 @@ public class ApiController {
 
             // Vulnerable Endpoints
             this.extraFeatureService.addVulnerableEndpoints(vulnBool, persistence);
+
+            // JWT Authentication
+            this.extraFeatureService.addJWTAuthentication(jwtUser, jwtPass, jwtPaths);
 
             // Costruzione della risposta
             byte[] zipFileContent;
