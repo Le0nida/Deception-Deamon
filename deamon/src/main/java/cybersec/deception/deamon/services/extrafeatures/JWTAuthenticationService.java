@@ -33,6 +33,8 @@ public class JWTAuthenticationService {
             import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
             import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
             import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+            
+            import javax.servlet.http.HttpServletResponse;
             """;
 
     private final static String injectedJWTValues = """
@@ -63,7 +65,7 @@ public class JWTAuthenticationService {
                                 response.setContentType("application/json");
                                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                                 response.getOutputStream().println("{ \\"error\\": \\"Unauthorized - A valid JWT token is required\\" }");
-                            });                                .accessDeniedPage("/admin/login?error");
+                            });
             """;
 
     public void addJWTAuthenticationFeatures(String user, String pass, String paths){
