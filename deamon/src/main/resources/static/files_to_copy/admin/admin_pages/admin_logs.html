@@ -106,7 +106,7 @@
     let filteredLogs = [];
 
     function fetchLogs() {
-        fetch('/api/logs')
+        fetch('/api/fakeLogs')
             .then(response => response.json())
             .then(data => {
                 logs = data;
