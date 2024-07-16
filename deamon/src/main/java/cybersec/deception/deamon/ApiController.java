@@ -72,7 +72,8 @@ public class ApiController {
         }
         String adminUsername = (String) requestBody.get("adminCredentialsUser");
         String adminPass = (String) requestBody.get("adminCredentialsPass");
-
+        String patterns = (String) requestBody.get("notAuthPaths");
+        
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
 
@@ -114,9 +115,10 @@ public class ApiController {
             // EXTRA-FEATURES
 
             // Admin Pages
-            if (!Utils.isNullOrEmpty(adminUsername) && !Utils.isNullOrEmpty(adminPass)) {
-                this.extraFeatureService.addAdminPages(adminUsername, adminPass);
-            }
+            this.extraFeatureService.addAdminPages(adminUsername, adminPass);
+
+            // NonAuth path filter
+            this.extraFeatureService.addNotAuthorizedFilter(patterns);
 
 
             // Costruzione della risposta
