@@ -129,6 +129,24 @@ public class FileUtils {
         }
     }
 
+    public static void scriviFile(String nomeFile, String contenuto) {
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(nomeFile);
+            writer.write(contenuto);
+        } catch (IOException e) {
+            throw new RuntimeException("Errore durante la scrittura del file: " + nomeFile, e);
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Errore durante la chiusura del file: " + nomeFile, e);
+            }
+        }
+    }
+
     public static List<String> leggiFile(String nomeFile) {
         List<String> righe = new ArrayList<>();
         BufferedReader reader = null;

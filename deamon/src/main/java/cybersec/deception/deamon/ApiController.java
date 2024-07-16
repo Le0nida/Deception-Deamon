@@ -78,6 +78,7 @@ public class ApiController {
         String jwtUser = (String) requestBody.get("jwtUser");
         String jwtPass = (String) requestBody.get("jwtPassword");
         String jwtPaths = (String) requestBody.get("jwtAuthPaths");
+        Map<String, String> mockarooRequestsMap = (Map<String, String>) requestBody.get("mockarooRequestsMap");
 
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
@@ -93,10 +94,10 @@ public class ApiController {
 
             if (persistence) {
                 // manipolo il server generato per aggiungere la gestione della persistenza
-                this.persistenceService.managePersistence(tableCode);
+                this.persistenceService.managePersistence(tableCode, mockarooRequestsMap);
 
                 // genero e popolo le tabelle
-                this.persistenceService.setupDatabase(yamlSpecString, tableCode);
+                this.persistenceService.setupDatabase(yamlSpecString, tableCode, mockarooRequestsMap);
             }
 
             String notImplMethods = ControllerFilesUtils.getNotImplementedMethods(persistence);

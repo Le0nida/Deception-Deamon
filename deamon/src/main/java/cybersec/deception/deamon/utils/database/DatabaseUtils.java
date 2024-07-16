@@ -48,7 +48,7 @@ public class DatabaseUtils {
         DatabaseUtils.dbname = dbname;
     }
 
-    public static void createDatabaseAndTable(Map<String, List<String>> entities, String tableCode) {
+    public static void createDatabaseAndTable(Map<String, List<String>> entities, String tableCode, Map<String, String> mockarooRequestsMap) {
         Statement statement = null;
 
         try {
@@ -58,6 +58,9 @@ public class DatabaseUtils {
             for (String fileName : entities.keySet()) {
 
                 String outputFilePath = SQLFilesUtils.getUpdatedSqlFile(fileName, entities.get(fileName));
+                if (Utils.isNullOrEmpty(outputFilePath) && mockarooRequestsMap.get("request"+fileName) != null) {
+                    outputFilePath = SQLFilesUtils.generateSQLFileMockaroo(fileName, mockarooRequestsMap.get("request"+fileName));
+                }
                 if (!Utils.isNullOrEmpty(outputFilePath)) {
                     FileUtils.replaceStringInFile(outputFilePath, " " + fileName + " ", " " + tableCode + "_" + fileName.toLowerCase() + " ");
                     executeSql(outputFilePath, statement);

@@ -3,7 +3,9 @@ package cybersec.deception.deamon.services;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.YAMLUtils;
 import cybersec.deception.deamon.utils.database.DatabaseUtils;
+import cybersec.deception.deamon.utils.database.SQLFilesUtils;
 import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +40,11 @@ public class ManagePersistenceService {
     @Value("${repository.interface.folder}")
     private String repositoryInterfaceDir;
 
-    public void managePersistence(String tableCode) {
+    @Autowired
+    public MockarooService mockarooService;
+
+
+    public void managePersistence(String tableCode, Map<String, String> mockarooRequestsMap) {
 
         File folderM = new File(modelFolder);
         File folderAPI = new File(apiFolder);
@@ -50,6 +57,9 @@ public class ManagePersistenceService {
             System.err.println("La cartella API non esiste");
             return;
         }
+
+        // Step 0: costruisco le entità cutson in json
+        buildCustomEntities(mockarooRequestsMap);
 
         // Step 1: entità del modello con annotazioni Hibernate
         buildHibernateEntities(folderM.listFiles(), modelFolder, tableCode);
@@ -79,6 +89,28 @@ public class ManagePersistenceService {
                     }
                 }
             }
+        }
+
+        // Final step: rimuovo le entità custom
+        deleteCustomEntities(mockarooRequestsMap);
+    }
+
+    private void deleteCustomEntities(Map<String, String> mockarooRequestsMap) {
+        for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
+            String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
+            FileUtils.deleteFile(inputFilePath);
+        }
+    }
+
+    private void buildCustomEntities(Map<String, String> mockarooRequestsMap) {
+
+        for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
+            String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
+
+            HttpRequest request = mockarooService.buildJSONRequest(entry.getValue());
+            String result = mockarooService.generateData(request);
+
+            FileUtils.scriviFile(inputFilePath, result);
         }
     }
 
@@ -121,9 +153,9 @@ public class ManagePersistenceService {
         }
     }
 
-    public void setupDatabase(String yamlString, String tableCode) {
+    public void setupDatabase(String yamlString, String tableCode, Map<String, String> mockarooRequestsMap) {
         Map<String, List<String>> componentsProperties = YAMLUtils.getComponentsProperties(yamlString);
-        DatabaseUtils.createDatabaseAndTable(componentsProperties, tableCode);
+        DatabaseUtils.createDatabaseAndTable(componentsProperties, tableCode, mockarooRequestsMap);
     }
 
     private void buildHibernateEntities(File[] files, String folderPath, String tableCode) {

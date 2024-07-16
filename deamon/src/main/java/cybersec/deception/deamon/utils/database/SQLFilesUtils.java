@@ -1,20 +1,50 @@
 package cybersec.deception.deamon.utils.database;
 
+import cybersec.deception.deamon.services.MockarooService;
 import cybersec.deception.deamon.utils.FileUtils;
+import cybersec.deception.deamon.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.List;
+
 @Component
 public class SQLFilesUtils {
 
+    public static MockarooService mockarooService;
     public static String sqlfilesDirectory;
+    @Autowired
+    public SQLFilesUtils(MockarooService mockarooService) {
+        SQLFilesUtils.mockarooService = mockarooService;
+    }
 
     @Value("${sqlfiles.dir.location}")
     public void setSqlfilesDirectory(String sqlfilesDirectory) {
         SQLFilesUtils.sqlfilesDirectory = sqlfilesDirectory;
+    }
+
+    public static String generateSQLFileMockaroo(String inputFileName, String requestBody) {
+
+        String inputFilePath = FileUtils.buildPath(sqlfilesDirectory, inputFileName + "Updated.sql");
+
+        HttpRequest request = mockarooService.buildSQLRequest(requestBody);
+        String result = mockarooService.generateData(request);
+        result = result.replace("insert into  ", "insert into " + inputFileName + " ");
+
+        String createTable = mockarooService.createTable(inputFileName, requestBody);
+        FileUtils.scriviFile(inputFilePath, createTable + "\n\n" + result);
+
+        if (FileUtils.existsFile(inputFilePath)) {
+            return inputFilePath;
+        }
+        else {
+            System.out.println("Il file " + inputFilePath + " non esiste");
+        }
+        return null;
     }
 
     public static String getUpdatedSqlFile(String inputFileName, List<String> selectedAttributes) {
