@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="/css/vulns.css">
+</head>
+
+<body>
+<header>
+    <h1>Company Name</h1>
+</header>
+<nav>
+    <a href="/home">Home</a>
+    <a href="/profile">Profile</a>
+    <a href="/contact">Contact</a>
+</nav>
+<div class="container">
+    <div class="alert">
+        <strong>Warning!</strong> This page is deprecated and no longer maintained.
+    </div>
+
+    <!-- Show error message if user does not exist -->
+    <div th:if="${!userExists}" class="alert">
+        <strong>Error!</strong> User not found.
+    </div>
+
+    <h2>User Profile</h2>
+    <p>Welcome, <b><span th:utext="${user.username}">undefined</span></b>!</p>
+    <div th:if="${userExists}">
+        <p>Name: <span th:text="${user.firstName} + ' ' + ${user.lastName}">undefined</span></p>
+        <p>Email: <span th:text="${user.email}">undefined</span></p>
+        <p>Gender: <span th:text="${user.gender}">undefined</span></p>
+        <p>Job Title: <span th:text="${user.jobTitle}">undefined</span></p>
+        <p>Department: <span th:text="${user.department}">undefined</span></p>
+        <p>Account Status: <span th:text="${user.isActive == 1 ? 'Active' : 'Inactive'}">undefined</span></p>
+
+        <!-- Partially hidden phone number and IP address -->
+        <p>Phone Number: <span id="phoneNumber" th:text="${'+** *** *' + user.phoneNumber.substring(6, user.phoneNumber.length())}">undefined</span>
+            <button class="button" onclick="openUnlockDialog('phone')">Unlock</button>
+        </p>
+        <p>IP Address: <span id="ipAddress" th:text="${user.ipaddress.substring(0, user.ipaddress.lastIndexOf('.') -2 ) + '**.***'}">undefined</span>
+            <button class="button" onclick="openUnlockDialog('ip')">Unlock</button>
+        </p>
+    </div>
+
+    <hr>
+    <h3>Account Settings</h3>
+    <button class="button" onclick="openChangePasswordDialog()">Change Password</button>
+    <hr>
+    <h3>Preferences</h3>
+    <input type="checkbox" id="notifications" name="notifications" checked>
+    <label for="notifications">Receive Notifications</label>
+    <br><br>
+    <input type="checkbox" id="newsletter" name="newsletter">
+    <label for="newsletter">Subscribe to Newsletter</label>
+    <hr>
+    <h3>Leave Management</h3>
+    <button class="button">Request Vacation</button>
+    <button class="button">Report Sick Leave</button>
+    <hr>
+    <h3>Work Schedule</h3>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Project</th>
+        </tr>
+    </table>
+    <br><br>
+
+</div>
+
+<!-- Dialog for unlocking phone number and IP address -->
+<div id="unlockDialog" class="dialog-overlay">
+    <div class="dialog-content">
+        <div class="dialog-header">
+            <h3>Unlock Information</h3>
+            <span class="dialog-close" onclick="closeUnlockDialog()">X</span>
+        </div>
+        <form onsubmit="event.preventDefault(); unlockInfo()">
+            <label for="unlockPassword">Password:</label>
+            <input type="password" id="unlockPassword" name="unlockPassword" required><br><br>
+            <button type="button" onclick="closeUnlockDialog()">Cancel</button>
+            <button type="submit">Unlock</button>
+        </form>
+    </div>
+</div>
+
+<!-- Change Password Dialog -->
+<div id="changePasswordDialog" class="dialog-overlay">
+    <div class="dialog-content">
+        <div class="dialog-header">
+            <h3>Change Password</h3>
+            <span class="dialog-close" onclick="closeChangePasswordDialog()">X</span>
+        </div>
+        <form onsubmit="event.preventDefault(); saveChangePassword()">
+            <label for="currentPassword">Current Password:</label>
+            <input type="password" id="currentPassword" name="currentPassword" required><br><br>
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required><br><br>
+            <label for="confirmNewPassword">Confirm New Password:</label>
+            <input type="password" id="confirmNewPassword" name="confirmNewPassword" required><br><br>
+            <button type="button" onclick="closeChangePasswordDialog()">Cancel</button>
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openChangePasswordDialog() {
+        document.getElementById("changePasswordDialog").style.display = "flex";
+    }
+
+    function closeChangePasswordDialog() {
+        document.getElementById("changePasswordDialog").style.display = "none";
+    }
+
+    function saveChangePassword() {
+        alert("Error: Unable to change password. Please contact the system administrator.");
+        closeChangePasswordDialog();
+    }
+
+    function openUnlockDialog(type) {
+        document.getElementById("unlockDialog").style.display = "flex";
+        document.getElementById("unlockDialog").dataset.type = type;
+    }
+
+    function closeUnlockDialog() {
+        document.getElementById("unlockDialog").style.display = "none";
+    }
+
+    function unlockInfo() {
+        const type = document.getElementById("unlockDialog").dataset.type;
+        if (type === 'phone') {
+            document.getElementById("phoneNumber").textContent = "[[${user.phoneNumber}]]";
+        } else if (type === 'ip') {
+            document.getElementById("ipAddress").textContent = "[[${user.ipaddress}]]";
+        }
+        closeUnlockDialog();
+    }
+</script>
+
+<footer>
+    <p>Contact us at <a href="mailto:support@example.com">support@example.com</a></p>
+</footer>
+</body>
+
+</html>

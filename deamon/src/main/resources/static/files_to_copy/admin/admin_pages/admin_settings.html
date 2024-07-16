@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <script src="/js/admin.js"></script>
+    <style>
+        input[type="checkbox"] {
+            margin-top: 10px;
+        }
+
+        #saveBtn,
+        input[type="submit"] {
+            margin-top: 30px;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #e60000;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            margin-top: 5px;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .otp-error-message {
+            color: #ff4d4d;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>
+    <span class="title" onclick="goBack()">Dashboard</span> - System Settings
+</h1>
+<form class="container" onsubmit="return showOtpDialog()">
+
+    <!-- Parametri di rete -->
+    <h3>Network Settings</h3>
+    <label for="server_host">Server Host:</label>
+    <input type="text" id="server_host" name="server_host" required placeholder="api.example.com">
+    <span class="help-text">Enter the hostname or IP address of the server.</span><br>
+
+    <label for="server_port">Server Port (0-65535):</label>
+    <input type="number" id="server_port" name="server_port" required min="0" max="65535" placeholder="443">
+    <span class="help-text">Enter the port number for the server (0-65535).</span><br>
+
+    <!-- Parametri del server -->
+    <h3>Server Parameters</h3>
+    <label for="max_connections">Max Connections:</label>
+    <input type="number" id="max_connections" name="max_connections" required min="1" placeholder="100">
+    <span class="help-text">Enter the maximum number of connections allowed.</span><br>
+
+    <label for="timeout">Timeout (ms):</label>
+    <input type="number" id="timeout" name="timeout" required min="1" placeholder="5000">
+    <span class="help-text">Enter the timeout value in milliseconds.</span><br>
+
+    <label for="enable_caching">Enable Caching:</label>
+    <input type="checkbox" id="enable_caching" name="enable_caching">
+    <span class="help-text">Check to enable caching.</span><br>
+
+    <!-- Parametri di sicurezza -->
+    <h3>Security Settings</h3>
+    <label for="ssl_enabled">SSL Enabled:</label>
+    <input type="checkbox" id="ssl_enabled" name="ssl_enabled" checked>
+    <span class="help-text">Check to enable SSL.</span><br>
+
+    <label for="ssl_certificate">SSL Certificate Path:</label>
+    <input type="text" id="ssl_certificate" name="ssl_certificate" required placeholder="/etc/ssl/certs/server.crt">
+    <span class="help-text">Enter the path to the SSL certificate file.</span><br>
+
+    <label for="security_headers">Security Headers:</label><br>
+    <textarea id="security_headers" name="security_headers" placeholder="Content-Security-Policy: default-src 'self';, X-Content-Type-Options: nosniff;"></textarea>
+    <span class="help-text">Enter security headers separated by commas.</span><br>
+
+    <!-- Parametri di gestione delle risorse -->
+    <h3>Resource Management</h3>
+    <label for="max_memory">Max Memory (MB):</label>
+    <input type="number" id="max_memory" name="max_memory" required min="1" placeholder="1024">
+    <span class="help-text">Enter the maximum memory limit in megabytes.</span><br>
+
+    <label for="max_cpu">Max CPU (%):</label>
+    <input type="number" id="max_cpu" name="max_cpu" required min="1" max="100" placeholder="80">
+    <span class="help-text">Enter the maximum CPU usage percentage.</span><br>
+
+    <!-- Parametri di logging -->
+    <h3>Logging Settings</h3>
+    <label for="log_level">Log Level:</label>
+    <select id="log_level" name="log_level" required>
+        <option value="">Select</option>
+        <option value="info">Info</option>
+        <option value="warning">Warning</option>
+        <option value="error">Error</option>
+        <option value="debug">Debug</option>
+    </select>
+    <span class="help-text">Select the desired log level.</span><br>
+
+    <label for="log_file">Log File:</label>
+    <input type="text" id="log_file" name="log_file" required placeholder="/var/log/server.log">
+    <span class="help-text">Enter the path to the log file.</span><br>
+
+    <label for="enable_log_rotation">Enable Log Rotation:</label>
+    <input type="checkbox" id="enable_log_rotation" name="enable_log_rotation">
+    <span class="help-text">Check to enable log rotation.</span><br>
+
+    <label for="log_rotation_interval">Log Rotation Interval (days):</label>
+    <input type="number" id="log_rotation_interval" name="log_rotation_interval" placeholder="7">
+    <span class="help-text">Enter the log rotation interval in days.</span><br>
+
+    <!-- Parametri di autorizzazione -->
+    <h3>Authorization Settings</h3>
+    <label for="auth_method">Authentication Method:</label>
+    <select id="auth_method" name="auth_method" onchange="showAuthFields()" required>
+        <option value="">Select</option>
+        <option value="disabled">Disabled</option>
+        <option value="basic">Basic Auth</option>
+        <option value="jwt">JWT Auth</option>
+        <option value="oauth">OAuth</option>
+    </select>
+    <span class="help-text">Select the authentication method.</span><br>
+
+    <!-- Campi specifici per Basic Auth -->
+    <div id="basicAuthFields" style="display: none;">
+        <h3>Basic Auth Configuration</h3>
+        <label for="basic_username">Username:</label>
+        <input type="text" id="basic_username" name="basic_username" placeholder="admin">
+        <span class="help-text">Enter the username for Basic Auth.</span><br>
+
+        <label for="basic_password">Password:</label>
+        <input type="password" id="basic_password" name="basic_password" placeholder="password123">
+        <span class="help-text">Enter the password for Basic Auth.</span><br>
+    </div>
+
+    <!-- Campi specifici per JWT Auth -->
+    <div id="jwtAuthFields" style="display: none;">
+        <h3>JWT Auth Configuration</h3>
+        <label for="jwt_secret">JWT Secret:</label>
+        <input type="text" id="jwt_secret" name="jwt_secret" placeholder="your_jwt_secret">
+        <span class="help-text">Enter the JWT secret.</span><br>
+
+        <label for="jwt_algorithm">JWT Algorithm:</label>
+        <input type="text" id="jwt_algorithm" name="jwt_algorithm" placeholder="HS256">
+        <span class="help-text">Enter the JWT algorithm.</span><br>
+    </div>
+
+    <!-- Campi specifici per OAuth -->
+    <div id="oauthFields" style="display: none;">
+        <h3>OAuth Configuration</h3>
+        <label for="oauth_client_id">Client ID:</label>
+        <input type="text" id="oauth_client_id" name="oauth_client_id" placeholder="your_client_id">
+        <span class="help-text">Enter the OAuth client ID.</span><br>
+
+        <label for="oauth_client_secret">Client Secret:</label>
+        <input type="text" id="oauth_client_secret" name="oauth_client_secret" placeholder="your_client_secret">
+        <span class="help-text">Enter the OAuth client secret.</span><br>
+
+        <label for="oauth_redirect_uri">Redirect URI:</label>
+        <input type="text" id="oauth_redirect_uri" name="oauth_redirect_uri" placeholder="https://example.com/oauth/callback">
+        <span class="help-text">Enter the OAuth redirect URI.</span><br>
+    </div>
+
+    <!-- Aggiungi un messaggio di errore per i campi specifici di autenticazione -->
+    <div id="authErrorMessage" class="error-message" style="display: none;"></div>
+
+    <input type="submit" value="Save Settings">
+</form>
+
+<!-- Finestra di dialogo OTP -->
+<div id="otpModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeOtpDialog()">&times;</span>
+        <h2>Enter OTP</h2>
+        <p>Enter 6-digit OTP code received on your mail inbox.</p>
+        <label for="otpInput"></label><input type="text" id="otpInput" class="otp-input" maxlength="6" placeholder="Enter OTP" required>
+        <button id="saveBtn" onclick="validateOtp()">Submit</button>
+        <div id="otpErrorMessage" class="otp-error-message" style="display: none;">Wrong OTP code</div>
+    </div>
+</div>
+
+<script>
+    function validateAuthFields() {
+        var authMethod = document.getElementById("auth_method").value;
+        var errorMessage = document.getElementById("authErrorMessage");
+
+        if (authMethod === "basic") {
+            var username = document.getElementById("basic_username").value.trim();
+            var password = document.getElementById("basic_password").value.trim();
+
+            if (username === "" || password === "") {
+                errorMessage.innerHTML = "Username and password are required for Basic Auth.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+        } else if (authMethod === "jwt") {
+            var jwtSecret = document.getElementById("jwt_secret").value.trim();
+            var jwtAlgorithm = document.getElementById("jwt_algorithm").value.trim();
+
+            if (jwtSecret === "" || jwtAlgorithm === "") {
+                errorMessage.innerHTML = "JWT Secret and Algorithm are required for JWT Auth.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+        } else if (authMethod === "oauth") {
+            var oauthClientId = document.getElementById("oauth_client_id").value.trim();
+            var oauthClientSecret = document.getElementById("oauth_client_secret").value.trim();
+            var oauthRedirectUri = document.getElementById("oauth_redirect_uri").value.trim();
+
+            if (oauthClientId === "" || oauthClientSecret === "" || oauthRedirectUri === "") {
+                errorMessage.innerHTML = "Client ID, Client Secret, and Redirect URI are required for OAuth.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+        }
+
+        errorMessage.style.display = "none";
+        return true;
+    }
+
+    function showAuthFields() {
+        var authMethod = document.getElementById("auth_method").value;
+        var basicAuthFields = document.getElementById("basicAuthFields");
+        var jwtAuthFields = document.getElementById("jwtAuthFields");
+        var oauthFields = document.getElementById("oauthFields");
+
+        basicAuthFields.style.display = "none";
+        jwtAuthFields.style.display = "none";
+        oauthFields.style.display = "none";
+
+        if (authMethod === "basic") {
+            basicAuthFields.style.display = "block";
+        } else if (authMethod === "jwt") {
+            jwtAuthFields.style.display = "block";
+        } else if (authMethod === "oauth") {
+            oauthFields.style.display = "block";
+        }
+    }
+
+    function showOtpDialog() {
+        if (!validateAuthFields()) {
+            return false;
+        }
+
+        var modal = document.getElementById("otpModal");
+        modal.style.display = "block";
+        return false; // Evita l'invio del form
+    }
+
+    function closeOtpDialog() {
+        var modal = document.getElementById("otpModal");
+        modal.style.display = "none";
+    }
+
+    function validateOtp() {
+        var otpInput = document.getElementById("otpInput").value.trim();
+        var otpErrorMessage = document.getElementById("otpErrorMessage");
+
+        if (otpInput === "" || otpInput.length !== 6) {
+            otpErrorMessage.style.display = "block";
+            return false;
+        }
+
+        otpErrorMessage.style.display = "block";
+        return false;
+    }
+</script>
+</body>
+</html>

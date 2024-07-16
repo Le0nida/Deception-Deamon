@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - User Management</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <script src="/js/admin.js"></script>
+    <style>
+        .btn-edit {
+            background-color: #4CAF50;
+        }
+
+        .btn-edit:hover {
+            background-color: #45a049;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .btn-add {
+            margin-bottom: 20px;
+        }
+
+        .btn-save {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            background-color: #007bb5;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .otp-error-message {
+            color: #ff4d4d;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>
+    <span class="title" onclick="goBack()">Dashboard</span> - User Management
+</h1>
+<div class="container">
+
+    <button class="btn btn-add" onclick="openModal('addUserModal')">Add New User</button>
+
+    <button class="btn btn-save" onclick="showOtpDialog('saveChanges')">Save Changes</button>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <!-- Admin user -->
+        <tr>
+            <td>101</td>
+            <td>admin</td>
+            <td>admin@adsyscmp.com</td>
+            <td>Admin</td>
+            <td>
+                <button class="btn btn-edit" onclick="showAdminError()">Edit</button>
+                <button class="btn btn-delete" onclick="showAdminError()">Delete</button>
+            </td>
+        </tr>
+        <!-- Seven SuperUser accounts -->
+        <tr>
+            <td>102</td>
+            <td>johndoe</td>
+            <td>john.doe@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10002)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10002)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>105</td>
+            <td>janedoe</td>
+            <td>jane.doe@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10003)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10003)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>106</td>
+            <td>alexsmith</td>
+            <td>alex.smith@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10004)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10004)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>110</td>
+            <td>emilyjones</td>
+            <td>emily.jones@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10005)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10005)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>111</td>
+            <td>michaelbrown</td>
+            <td>michael.brown@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10006)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10006)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>117</td>
+            <td>sarawilson</td>
+            <td>sara.wilson@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10007)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10007)">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>118</td>
+            <td>chrismiller</td>
+            <td>chris.miller@adsyscmp.com</td>
+            <td>SuperUser</td>
+            <td>
+                <button class="btn btn-edit" onclick="openModal('editUserModal', 10008)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(10008)">Delete</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal for adding a user -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addUserModal')">&times;</span>
+        <h2>Add New User</h2>
+        <div class="form-group">
+            <label for="addUsername">Username:</label>
+            <input type="text" id="addUsername" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="addEmail">Email:</label>
+            <input type="email" id="addEmail" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="addPassword">Password:</label>
+            <input type="password" id="addPassword" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="addRole">Role:</label>
+            <select id="addRole" name="role" required>
+                <option value="Admin">Admin</option>
+                <option value="SuperUser">SuperUser</option>
+            </select>
+        </div>
+        <button class="btn" onclick="addUser()">Add User</button>
+    </div>
+</div>
+
+<!-- Modal for editing a user -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+        <h2>Edit User</h2>
+        <input type="hidden" id="editUserId">
+        <div class="form-group">
+            <label for="editUsername">Username:</label>
+            <input type="text" id="editUsername" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="editEmail">Email:</label>
+            <input type="email" id="editEmail" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="editRole">Role:</label>
+            <select id="editRole" name="role" required>
+                <option value="Admin">Admin</option>
+                <option value="SuperUser">SuperUser</option>
+            </select>
+        </div>
+        <button class="btn" onclick="saveUser()">Save Changes</button>
+    </div>
+</div>
+
+<!-- Modal for OTP -->
+<div id="otpModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeOtpDialog()">&times;</span>
+        <h2>Enter OTP</h2>
+        <p>Enter 6-digit OTP code received on your mail inbox.</p>
+        <label for="otpInput"></label><input type="text" id="otpInput" class="otp-input" maxlength="6" placeholder="Enter OTP" required>
+        <button class="btn" onclick="validateOtp()">Submit</button>
+        <div id="otpErrorMessage" class="otp-error-message" style="display: none;">Wrong OTP code</div>
+    </div>
+</div>
+
+<!-- Modal for admin error -->
+<div id="adminErrorModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAdminError()">&times;</span>
+        <h2>Error</h2>
+        <p>You cannot modify or delete the current administrator from this interface.</p>
+    </div>
+</div>
+
+<script>
+    let otpCallback = null;
+    let nextUserId = 119;
+
+    // Functions to open and close modals
+    function openModal(modalId, userId = null) {
+        document.getElementById(modalId).style.display = "block";
+        if (userId) {
+            loadUserData(userId);
+        }
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    // Function to add a user
+    function addUser() {
+        const username = document.getElementById('addUsername').value;
+        const email = document.getElementById('addEmail').value;
+        const password = document.getElementById('addPassword').value;
+        const role = document.getElementById('addRole').value;
+
+        const tableBody = document.getElementById('userTableBody');
+        const row = tableBody.insertRow();
+        row.insertCell(0).innerHTML = nextUserId;
+        row.insertCell(1).innerHTML = username;
+        row.insertCell(2).innerHTML = email;
+        row.insertCell(3).innerHTML = role;
+        row.insertCell(4).innerHTML = `
+            <button class="btn btn-edit" onclick="openModal('editUserModal', ${nextUserId})">Edit</button>
+            <button class="btn btn-delete" onclick="deleteUser(${nextUserId})">Delete</button>
+        `;
+        nextUserId++;
+
+        closeModal('addUserModal');
+    }
+
+    // Function to load user data into the edit form
+    function loadUserData(userId) {
+        const userData = {
+            id: userId,
+            username: 'john_doe',
+            email: 'john.doe@adsyscmp.com',
+            role: 'SuperUser'
+        };
+
+        document.getElementById('editUserId').value = userData.id;
+        document.getElementById('editUsername').value = userData.username;
+        document.getElementById('editEmail').value = userData.email;
+        document.getElementById('editRole').value = userData.role;
+    }
+
+    // Function to save user changes
+    function saveUser() {
+        const userId = document.getElementById('editUserId').value;
+        const username = document.getElementById('editUsername').value;
+        const email = document.getElementById('editEmail').value;
+        const role = document.getElementById('editRole').value;
+
+        const tableBody = document.getElementById('userTableBody');
+        const rows = tableBody.rows;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].cells[0].innerHTML == userId) {
+                rows[i].cells[1].innerHTML = username;
+                rows[i].cells[2].innerHTML = email;
+                rows[i].cells[3].innerHTML = role;
+                break;
+            }
+        }
+
+        closeModal('editUserModal');
+    }
+
+    // Function to delete a user
+    function deleteUser(userId) {
+        const tableBody = document.getElementById('userTableBody');
+        const rows = tableBody.rows;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].cells[0].innerHTML == userId) {
+                tableBody.deleteRow(i);
+                break;
+            }
+        }
+    }
+
+    // Function to show the OTP dialog
+    function showOtpDialog(callback) {
+        otpCallback = callback;
+        var modal = document.getElementById("otpModal");
+        modal.style.display = "block";
+    }
+
+    // Function to close the OTP dialog
+    function closeOtpDialog() {
+        var modal = document.getElementById("otpModal");
+        modal.style.display = "none";
+    }
+
+    // Function to validate the OTP
+    function validateOtp() {
+        var otpInput = document.getElementById("otpInput").value.trim();
+        var otpErrorMessage = document.getElementById("otpErrorMessage");
+
+        if (otpInput === "" || otpInput.length !== 6) {
+            otpErrorMessage.style.display = "block";
+            return false;
+        }
+
+        otpErrorMessage.style.display = "block";
+        otpErrorMessage.innerText = "Wrong OTP code";
+
+        if (otpCallback) {
+            otpCallback();
+        }
+
+        return false;
+    }
+
+    // Function for the save changes callback
+    function saveChanges() {
+        saveUser();
+    }
+
+    // Function to show admin error
+    function showAdminError() {
+        var modal = document.getElementById("adminErrorModal");
+        modal.style.display = "block";
+    }
+
+    function closeAdminError() {
+        var modal = document.getElementById("adminErrorModal");
+        modal.style.display = "none";
+    }
+</script>
+
+</body>
+</html>

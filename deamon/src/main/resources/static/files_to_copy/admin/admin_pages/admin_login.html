@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .container {
+            max-width: 300px !important;
+        }
+        .btn {
+            margin-top: 30px;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+        .forgot-password {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .dialog input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #contactAdmin {
+            background-color: rgba(8, 230, 0, 0.76);
+        }
+
+        #contactAdmin:hover {
+            background-color: #00e613;
+        }
+    </style>
+</head>
+<body>
+<h1>Admin Login</h1>
+<div class="container">
+    <form action="/admin/login" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <div class="forgot-password" onclick="showForgotPasswordDialog()">Forgot Password?</div>
+
+        <button class="btn" type="submit">Login</button>
+
+        <div class="error" id="error-message">
+            <p th:if="${param.error != null}">Invalid username or password.</p>
+            <p th:if="${param.logout != null}">You have been logged out.</p>
+        </div>
+    </form>
+</div>
+
+<div class="dialog-overlay" id="forgot-password-dialog">
+    <div class="dialog">
+        <h2>Forgot Password</h2>
+        <p>Please contact your system administrator to reset your password.</p>
+        <label for="reset-email"></label><input type="email" id="reset-email" placeholder="Enter your email">
+        <button class="btn" id="contactAdmin" onclick="contactAdmin()">Contact Admin</button>
+        <button class="btn" onclick="closeForgotPasswordDialog()">Close</button>
+    </div>
+</div>
+
+<script>
+    function showForgotPasswordDialog() {
+        document.getElementById('forgot-password-dialog').style.display = 'flex';
+    }
+
+    function closeForgotPasswordDialog() {
+        document.getElementById('forgot-password-dialog').style.display = 'none';
+    }
+
+    function contactAdmin() {
+        const email = document.getElementById('reset-email').value;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (email && emailPattern.test(email)) {
+            alert('Mail domain is not correct.');
+            closeForgotPasswordDialog();
+        } else {
+            alert('Please enter a valid email address.');
+        }
+    }
+</script>
+</body>
+</html>

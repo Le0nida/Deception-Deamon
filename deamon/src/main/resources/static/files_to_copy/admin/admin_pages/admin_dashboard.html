@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .container {
+            max-width: 600px !important;
+        }
+        div {
+            text-align: center;
+        }
+        nav {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .logout-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Admin Dashboard</h1>
+<div class="container">
+    <nav>
+        <ul>
+            <li class="btn"><a href="/admin/users">User Management</a></li>
+            <li class="btn"><a href="/admin/settings">System Settings</a></li>
+            <li class="btn"><a href="/admin/logs">System Logs</a></li>
+        </ul>
+    </nav>
+    <div>
+        <h2>Welcome, Admin!</h2>
+        <p>Use the navigation above to manage the system.</p>
+        <button class="logout-btn" onclick="location.href='/admin/login?logout'">Logout</button>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - System Logs</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <script src="/js/admin.js"></script>
+    <style>
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .filters button {
+            margin-bottom: 15px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #ffb700;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover {
+            background-color: #ecda97;
+        }
+
+        .pagination span {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    <span class="title" onclick="goBack()">Dashboard</span> - System Logs
+</h1>
+<div class="container">
+
+    <div class="controls">
+        <div class="filters">
+            <label for="search"></label><input type="text" id="search" placeholder="Search logs...">
+            <label for="filterDate"></label><input type="date" id="filterDate">
+            <label for="filterLevel"></label><select id="filterLevel">
+                <option value="">All Levels</option>
+                <option value="INFO">INFO</option>
+                <option value="WARN">WARN</option>
+                <option value="ERROR">ERROR</option>
+            </select>
+            <button class="btn" onclick="applyFilterLogs()">Filter</button>
+        </div>
+        <button class="btn" onclick="exportLogs()">Export Logs</button>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Level</th>
+            <th>Message</th>
+            <th>IP</th>
+        </tr>
+        </thead>
+        <tbody id="logTableBody">
+        <!-- Log data will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button onclick="previousPage()">Previous</button>
+        <span id="pageInfo"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    const rowsPerPage = 50;
+    let logs = [];
+    let filteredLogs = [];
+
+    function fetchLogs() {
+        fetch('/api/logs')
+            .then(response => response.json())
+            .then(data => {
+                logs = data;
+                logs.sort((a, b) => new Date(b.split(',')[0]) - new Date(a.split(',')[0])); // Sort logs from most recent to oldest
+                filterLogs(true); // Filter logs by default to show only today's logs
+            });
+    }
+
+    function applyFilterLogs() {
+        currentPage = 1;
+        filterLogs();
+    }
+
+    function displayLogs(logsToDisplay) {
+        const logTableBody = document.getElementById('logTableBody');
+        logTableBody.innerHTML = '';
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedLogs = logsToDisplay.slice(start, end);
+
+        paginatedLogs.forEach(log => {
+            const row = document.createElement('tr');
+            const [date, level, message, ip] = log.split(',');
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${level}</td>
+                <td>${message}</td>
+                <td>${ip}</td>
+            `;
+            logTableBody.appendChild(row);
+        });
+
+        document.getElementById('pageInfo').innerText = `Showing ${start + 1} to ${Math.min(start + rowsPerPage, logsToDisplay.length)} of ${logsToDisplay.length}`;
+    }
+
+    function filterLogs(isInitialLoad = false) {
+        const search = document.getElementById('search').value.toLowerCase();
+        const filterDate = document.getElementById('filterDate').value;
+        const filterLevel = document.getElementById('filterLevel').value;
+
+        filteredLogs = logs;
+
+        if (isInitialLoad) {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('filterDate').value = today;
+            filteredLogs = filteredLogs.filter(log => log.includes(today));
+        } else {
+            filteredLogs = filteredLogs.filter(log => {
+                const [date, level, message, ip] = log.split(',');
+                const logDate = new Date(date).toISOString().split('T')[0];
+                const matchesSearch = message.toLowerCase().includes(search);
+                const matchesDate = filterDate ? logDate === filterDate : true;
+                const matchesLevel = filterLevel ? level.toUpperCase().trim() === filterLevel : true;
+
+                return matchesSearch && matchesDate && matchesLevel;
+            });
+        }
+
+        displayLogs(filteredLogs);
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            displayLogs(filteredLogs);
+        }
+    }
+
+    function nextPage() {
+        if ((currentPage * rowsPerPage) < filteredLogs.length) {
+            currentPage++;
+            displayLogs(filteredLogs);
+        }
+    }
+
+    function exportLogs() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Date,Level,Message,IP\n";
+
+        filteredLogs.forEach(log => {
+            csvContent += log + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "system_logs.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    window.onload = fetchLogs;
+</script>
+
+</body>
+</html>
