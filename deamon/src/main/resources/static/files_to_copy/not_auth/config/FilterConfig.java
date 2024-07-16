@@ -16,7 +16,8 @@ public class FilterConfig {
         FilterRegistrationBean<RandomRedirectFilter> registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(new RandomRedirectFilter());
-        registrationBean.addUrlPatterns(notAuthPatterns);
+        String[] urlPatterns = notAuthPatterns.contains(", ") ? notAuthPatterns.split(", ") : new String[]{notAuthPatterns};
+        registrationBean.addUrlPatterns(urlPatterns);
 
         return registrationBean;
     }
