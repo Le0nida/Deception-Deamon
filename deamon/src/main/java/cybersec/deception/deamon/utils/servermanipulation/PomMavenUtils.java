@@ -120,6 +120,23 @@ public class PomMavenUtils {
         updateDom(doc, pomPath);
     }
 
+    public static void configureAdminPom(){
+
+        // Recupero il documento
+        Document doc = getPomDocument(pomPath);
+
+        // Creo le dipendenze da aggiungere
+        List<Element> elements = new ArrayList<>();
+        elements.add(createSecurityStarterDependency(doc));
+        elements.add(createThymeleafDependency(doc));
+
+        // Aggiungo le dipendenze al document
+        addDependencyToPom(doc, elements);
+
+        // Aggiorno il pom
+        updateDom(doc, pomPath);
+    }
+
     private static Document getPomDocument (String path) {
         // Crea il documento DOM dal file esistente
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -197,6 +214,10 @@ public class PomMavenUtils {
 
     private static Element createSecurityStarterDependency(Document document) {
         return createDependency(document, "org.springframework.boot", "spring-boot-starter-security", null);
+    }
+
+    private static Element createThymeleafDependency(Document document) {
+        return createDependency(document, "org.springframework.boot", "spring-boot-starter-thymeleaf", null);
     }
 
     private static Element createDependency(Document document, String groupId, String artifactId, String version) {

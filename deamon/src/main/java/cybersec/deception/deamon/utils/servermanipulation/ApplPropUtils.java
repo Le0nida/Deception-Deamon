@@ -142,4 +142,25 @@ public class ApplPropUtils {
             e.printStackTrace();
         }
     }
+
+
+    public static void addApplicationPropertiesThymeleafConfig() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
+            writer.newLine();
+            writer.newLine();
+            writer.write("# Configurazione Thymeleaf");
+            writer.newLine();
+            writer.write("spring.thymeleaf.prefix=classpath:/static/");
+            writer.newLine();
+            writer.write("spring.thymeleaf.suffix=.html");
+            writer.newLine();
+            writer.write("spring.thymeleaf.mode=HTML");
+            writer.newLine();
+            writer.write("spring.thymeleaf.encoding=UTF-8");
+            writer.newLine();
+            writer.write("spring.thymeleaf.cache="+false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

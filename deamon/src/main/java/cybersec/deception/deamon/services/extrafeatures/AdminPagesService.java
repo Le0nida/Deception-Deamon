@@ -2,8 +2,11 @@ package cybersec.deception.deamon.services.extrafeatures;
 
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
+import cybersec.deception.deamon.utils.servermanipulation.PomMavenUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
 
 @Service
 public class AdminPagesService {
@@ -14,15 +17,17 @@ public class AdminPagesService {
     @Value("${folder.static}")
     private String generatedStaticPath;
 
-    @Value("$(log.destination.folder)")
+    @Value("${log.destination.folder}")
     private String generatedLogPath;
 
     @Value("${adminFiles.source.path}")
     private String adminFilesSourcePath;
 
-    @Value("$securityconfig.destination.path")
+    @Value("${securityconfig.destination.path}")
     private String generatedSecurityConfigPath;
 
+    @Value(("${swagger2springboot.starter.path}"))
+    private String swagger2springboot;
 
     private final static String importAdminString = """
                     import org.springframework.beans.factory.annotation.Value;
@@ -108,6 +113,12 @@ public class AdminPagesService {
 
         // Aggiungo le credenziali al file application.properties
         ApplPropUtils.addApplicationPropertiesAdminConfig(username, password);
+
+        // Aggiungo le configurazioni thymeleaf per pagine html
+        ApplPropUtils.addApplicationPropertiesThymeleafConfig();
+
+        // Aggiungo le dipendenze di sicurezza e thymeleaf per pagine html
+        PomMavenUtils.configureAdminPom();
     }
 
 
@@ -120,6 +131,9 @@ public class AdminPagesService {
 
         // Copio i file di presentazione html, css, js
         FileUtils.copyDirectory(FileUtils.buildPath(adminFilesSourcePath, "admin_pages"), generatedStaticPath);
+
+        // Abilito lo scheduling per generare i log fake
+        FileUtils.replaceStringInFile(swagger2springboot, "public class Swagger2SpringBoot implements CommandLineRunner {", "@EnableScheduling\npublic class Swagger2SpringBoot implements CommandLineRunner {");
     }
 
     private void addSecurityConfig() {
@@ -140,4 +154,5 @@ public class AdminPagesService {
             FileUtils.copyFile(FileUtils.buildPath(adminFilesSourcePath,"SecurityConfig.java"), generatedSecurityConfigPath);
         }
     }
+
 }
