@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cybersec.deception.deamon.model.SecurityConfig;
 import cybersec.deception.deamon.model.ServerBuildResponse;
 import cybersec.deception.deamon.services.*;
+import cybersec.deception.deamon.services.extrafeatures.ExtraFeatureService;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.Utils;
 import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
@@ -39,15 +40,16 @@ public class ApiController {
     private final LoggingService logService;
     private final ApiUtilsService apiUtilsService;
     private final SecurityService securityService;
-
+    private final ExtraFeatureService extraFeatureService;
 
     @Autowired
-    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService, ApiUtilsService apiUtilsService, SecurityService securityService) {
+    public ApiController(ServerBuildingService serverBuildingService, ManagePersistenceService persistenceService, LoggingService logService, ApiUtilsService apiUtilsService, SecurityService securityService, ExtraFeatureService extraFeatureService) {
         this.serverBuildingService = serverBuildingService;
         this.persistenceService = persistenceService;
         this.logService = logService;
         this.apiUtilsService = apiUtilsService;
         this.securityService = securityService;
+        this.extraFeatureService = extraFeatureService;
     }
 
 
@@ -68,6 +70,8 @@ public class ApiController {
                 throw new RuntimeException(e);
             }
         }
+        String adminUsername = (String) requestBody.get("adminCredentialsUser");
+        String adminPass = (String) requestBody.get("adminCredentialsPass");
 
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
@@ -105,6 +109,14 @@ public class ApiController {
 
             // aggiungo tutta la gestione del logging privato
             this.logService.manageLogging(tableCode, persistence);
+
+
+            // EXTRA-FEATURES
+
+            // Admin Pages
+            if (!Utils.isNullOrEmpty(adminUsername) && !Utils.isNullOrEmpty(adminPass)) {
+                this.extraFeatureService.addAdminPages(adminUsername, adminPass);
+            }
 
 
             // Costruzione della risposta

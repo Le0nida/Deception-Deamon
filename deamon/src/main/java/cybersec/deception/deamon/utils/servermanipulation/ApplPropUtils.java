@@ -127,6 +127,19 @@ public class ApplPropUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public static void addApplicationPropertiesAdminConfig(String adminUsername, String adminPassword) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
+            writer.newLine();
+            writer.newLine();
+            writer.write("# Configurazione della credenziali di amministrazione");
+            writer.newLine();
+            writer.write("admin.username="+adminUsername);
+            writer.newLine();
+            writer.write("admin.password="+adminPassword);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
