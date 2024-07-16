@@ -74,6 +74,7 @@ public class ApiController {
         String adminPass = (String) requestBody.get("adminCredentialsPass");
         String patterns = (String) requestBody.get("notAuthPaths");
         boolean sessionBool = (boolean) requestBody.get("sessionBool");
+        boolean vulnBool = (boolean) requestBody.get("vulnBool");
 
         // controllo la validità del file .yaml
         if (validateOpenAPI(yamlSpecString).getStatusCode().equals(HttpStatusCode.valueOf(200))) {
@@ -124,6 +125,8 @@ public class ApiController {
             // Session filter
             this.extraFeatureService.addSessionFilter(sessionBool);
 
+            // Vulnerable Endpoints
+            this.extraFeatureService.addVulnerableEndpoints(vulnBool, persistence);
 
             // Costruzione della risposta
             byte[] zipFileContent;

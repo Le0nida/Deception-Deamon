@@ -8,15 +8,16 @@ import org.springframework.stereotype.Service;
 public class ExtraFeatureService {
 
     private final AdminPagesService adminPagesService;
-
     private final FilterService filterService;
-
     private final SessionService sessionService;
+    private final VulnerabilitiesService vulnerabilitiesService;
+
     @Autowired
-    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService, SessionService sessionService) {
+    public ExtraFeatureService(AdminPagesService adminPagesService, FilterService filterService, SessionService sessionService, VulnerabilitiesService vulnerabilitiesService) {
         this.adminPagesService = adminPagesService;
         this.filterService = filterService;
         this.sessionService = sessionService;
+        this.vulnerabilitiesService = vulnerabilitiesService;
     }
 
     public void addAdminPages(String adminUsername, String adminPass) {
@@ -34,6 +35,12 @@ public class ExtraFeatureService {
     public void addSessionFilter(boolean sessionBool) {
         if (sessionBool) {
             sessionService.addSessionFeatures();
+        }
+    }
+
+    public void addVulnerableEndpoints(boolean vulnBool, boolean persistence) {
+        if (vulnBool & persistence) {
+            vulnerabilitiesService.addVulnerabilitiesFeatures();
         }
     }
 }
