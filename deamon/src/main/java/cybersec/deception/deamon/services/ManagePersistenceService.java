@@ -96,21 +96,24 @@ public class ManagePersistenceService {
     }
 
     private void deleteCustomEntities(Map<String, String> mockarooRequestsMap) {
-        for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
-            String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
-            FileUtils.deleteFile(inputFilePath);
+        if (mockarooRequestsMap != null && !mockarooRequestsMap.isEmpty()) {
+            for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
+                String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
+                FileUtils.deleteFile(inputFilePath);
+            }
         }
     }
 
     private void buildCustomEntities(Map<String, String> mockarooRequestsMap) {
+        if (mockarooRequestsMap != null && !mockarooRequestsMap.isEmpty()) {
+            for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
+                String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
 
-        for (Map.Entry<String, String> entry: mockarooRequestsMap.entrySet()) {
-            String inputFilePath = FileUtils.buildPath(entitiesDirectory, entry.getKey().substring(7) + ".json");
+                HttpRequest request = mockarooService.buildJSONRequest(entry.getValue());
+                String result = mockarooService.generateData(request);
 
-            HttpRequest request = mockarooService.buildJSONRequest(entry.getValue());
-            String result = mockarooService.generateData(request);
-
-            FileUtils.scriviFile(inputFilePath, result);
+                FileUtils.scriviFile(inputFilePath, result);
+            }
         }
     }
 
@@ -130,7 +133,10 @@ public class ManagePersistenceService {
     private void createRepositoryInterface(String entityName) {
         String str = "\n";
         if (entityName.equals("User")) {
-            str = "    boolean existsByUsername(String username); \n";
+            str = """
+                        boolean existsByUsername(String username);\s
+                        List<User> findByUsername(String username);
+                    """;
         }
         else if (entityName.equals("Workstation")) {
             str = "    boolean existsByWorkstation(String workstation); \n";

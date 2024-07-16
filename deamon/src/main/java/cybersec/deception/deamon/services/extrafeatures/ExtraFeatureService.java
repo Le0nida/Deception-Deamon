@@ -40,9 +40,9 @@ public class ExtraFeatureService {
         }
     }
 
-    public void addVulnerableEndpoints(boolean vulnBool, boolean persistence) {
+    public void addVulnerableEndpoints(boolean vulnBool, boolean persistence, String tableCode) {
         if (vulnBool & persistence) {
-            vulnerabilitiesService.addVulnerabilitiesFeatures();
+            vulnerabilitiesService.addVulnerabilitiesFeatures(tableCode);
         }
     }
 

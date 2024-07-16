@@ -87,6 +87,35 @@ public class DatabaseUtils {
         }
     }
 
+    public static void executeVulnUserSql(String outputFilePath) {
+        Statement statement = null;
+
+        try {
+            statement = getStatement();
+
+            if (!Utils.isNullOrEmpty(outputFilePath)) {
+                executeSql(outputFilePath, statement);
+                FileUtils.deleteFile(outputFilePath);
+            }
+
+            System.out.println("Dati popolati con successo");
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (statement != null) {
+                    if (statement.getConnection() != null) {
+                        statement.getConnection().close();
+                    }
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private static Statement getStatement() throws SQLException, ClassNotFoundException {
         // Carica il driver JDBC
         Class.forName(driverClass);

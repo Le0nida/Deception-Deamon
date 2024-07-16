@@ -26,7 +26,7 @@ public class AdminPagesService {
     @Value("${securityconfig.destination.path}")
     private String generatedSecurityConfigPath;
 
-    @Value(("${swagger2springboot.starter.path}"))
+    @Value("${swagger2springboot.starter.path}")
     private String swagger2springboot;
 
     private final static String importAdminString = """

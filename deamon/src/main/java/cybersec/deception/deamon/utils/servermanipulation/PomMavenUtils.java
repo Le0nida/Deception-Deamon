@@ -137,6 +137,26 @@ public class PomMavenUtils {
         updateDom(doc, pomPath);
     }
 
+    public static void configureVulnServicePom() {
+
+        if (FileUtils.readFile(pomPath).contains("spring-boot-starter-thymeleaf")) {
+            return;
+        }
+        // Recupero il documento
+        Document doc = getPomDocument(pomPath);
+
+        // Creo le dipendenze da aggiungere
+        List<Element> elements = new ArrayList<>();
+        elements.add(createThymeleafDependency(doc));
+
+        // Aggiungo le dipendenze al document
+        addDependencyToPom(doc, elements);
+
+        // Aggiorno il pom
+        updateDom(doc, pomPath);
+
+    }
+
     public static void configureJWTPom() {
 
         // Recupero il documento

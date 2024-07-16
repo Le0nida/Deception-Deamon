@@ -130,7 +130,7 @@ public class ApiController {
             this.extraFeatureService.addSessionFilter(sessionBool);
 
             // Vulnerable Endpoints
-            this.extraFeatureService.addVulnerableEndpoints(vulnBool, persistence);
+            this.extraFeatureService.addVulnerableEndpoints(vulnBool, persistence, tableCode);
 
             // JWT Authentication
             this.extraFeatureService.addJWTAuthentication(jwtUser, jwtPass, jwtPaths);

@@ -268,6 +268,16 @@ public class FileUtils {
         return file.exists();
     }
 
+    public static void createDirectory(String dirPath) {
+        Path path = Paths.get(dirPath);
+        try {
+            Files.createDirectories(path);
+            System.out.println("Directory created: " + path.toAbsolutePath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error in directory creation: " + dirPath, e);
+        }
+    }
+
     public static void copyDirectory(String sourceDirectoryPath, String targetDirectoryPath){
         // Crea un oggetto Path per la directory di origine
         Path sourcePath = Paths.get(sourceDirectoryPath);

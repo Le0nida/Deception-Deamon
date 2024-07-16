@@ -146,6 +146,9 @@ public class ApplPropUtils {
 
 
     public static void addApplicationPropertiesThymeleafConfig() {
+        if (FileUtils.readFile(appPropertiesPath).contains("spring.thymeleaf")) {
+            return;
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(appPropertiesPath, true))) {
             writer.newLine();
             writer.newLine();

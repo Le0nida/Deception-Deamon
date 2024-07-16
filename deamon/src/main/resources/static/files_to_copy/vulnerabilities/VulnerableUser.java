@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 
 
 @Entity
-@Table(name = "jnktkmz_vulnuser")
+@Table(name = "TABLECODE_vulnuser")
 public class VulnerableUser   {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
