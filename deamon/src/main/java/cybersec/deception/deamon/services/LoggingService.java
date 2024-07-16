@@ -36,14 +36,10 @@ public class LoggingService {
     public void manageLogging(String tableCode, boolean persistence) {
 
         // aggiungo la cartella per la gestione del Logging nel server
-        try {
-            FileUtils.copyDirectory(logSourceFolder, logDestinationFolder);
+        FileUtils.copyDirectory(logSourceFolder, logDestinationFolder);
 
-            // creo il nome della tabella per gestire il log con il baseCode associato
-            FileUtils.replaceStringInFile(httprequestlogPath, "TABLECODETOSUBSTITUTE", tableCode +"_");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        // creo il nome della tabella per gestire il log con il baseCode associato
+        FileUtils.replaceStringInFile(httprequestlogPath, "TABLECODETOSUBSTITUTE", tableCode +"_");
 
         // aggiungo i parametri di configurazione di JPA (se non è già stato fatto)
         //if (!persistence) {

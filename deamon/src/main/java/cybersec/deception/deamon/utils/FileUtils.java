@@ -250,7 +250,7 @@ public class FileUtils {
         return file.exists();
     }
 
-    public static void copyDirectory(String sourceDirectoryPath, String targetDirectoryPath) throws IOException {
+    public static void copyDirectory(String sourceDirectoryPath, String targetDirectoryPath){
         // Crea un oggetto Path per la directory di origine
         Path sourcePath = Paths.get(sourceDirectoryPath);
 
@@ -258,15 +258,19 @@ public class FileUtils {
         Path targetPath = Paths.get(targetDirectoryPath);
 
         // Copia il contenuto della directory di origine nella directory di destinazione
-        Files.walk(sourcePath)
-                .forEach(source -> {
-                    try {
-                        Path destination = targetPath.resolve(sourcePath.relativize(source));
-                        Files.copy(source, destination);
-                    } catch (IOException e) {
-                        e.printStackTrace(); // Gestisci l'eccezione in base alle tue esigenze
-                    }
-                });
+        try {
+            Files.walk(sourcePath)
+                    .forEach(source -> {
+                        try {
+                            Path destination = targetPath.resolve(sourcePath.relativize(source));
+                            Files.copy(source, destination);
+                        } catch (IOException e) {
+                            e.printStackTrace(); // Gestisci l'eccezione in base alle tue esigenze
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void copyFile(String sourcePath, String targetPath) {
