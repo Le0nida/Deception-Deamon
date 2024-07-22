@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=builder /app/deamon /app/deamon
 
 # Esponi la porta su cui il server Spring Boot ascolterà le richieste HTTP
-EXPOSE 8075
+EXPOSE 8076
 
 # Avvia l'applicazione Spring Boot quando il container viene avviato
 CMD ["java", "-jar", "/app/deamon/target/deamon-0.0.1-SNAPSHOT.jar"]
