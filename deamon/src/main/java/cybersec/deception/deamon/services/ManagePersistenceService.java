@@ -146,6 +146,7 @@ public class ManagePersistenceService {
                 "import io.swagger.model." + entityName + ";\n" +
                 "import org.springframework.data.jpa.repository.JpaRepository;\n" +
                 "import org.springframework.stereotype.Repository;\n\n" +
+                "import java.util.List;\n\n" +
                 "@Repository\n" +
                 "public interface " + entityName + "Repository extends JpaRepository<" + entityName + ", Long> {\n" +
                 str + "}";
