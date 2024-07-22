@@ -164,6 +164,7 @@ public class PomMavenUtils {
 
         // Creo le dipendenze da aggiungere
         List<Element> elements = new ArrayList<>();
+        elements.add(createSecurityStarterDependency(doc));
         elements.add(createJWTDependency(doc));
 
         // Aggiungo le dipendenze al document
