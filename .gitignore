@@ -5,3 +5,4 @@
 .idea/deamon.iml
 /deamon/src/main/resources/generatedServer
 deamon/src/main/resources/instructions.txt
+deamon/deamon/src/main/resources/openApiSpec.json
