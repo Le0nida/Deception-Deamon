@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: cybersecdcg
+      MYSQL_DATABASE: fakeDataDb
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  server:
+    container_name: deamon_project
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=jdbc:mysql://mysql:3306/fakeDataDb?allowPublicKeyRetrieval=true
+    depends_on:
+      - mysql
+    ports:
+      - "8076:8076"
+    networks:
+      - app-network
+
+  client:
+    container_name: client_project
+    build:
+      context: ../client
+      dockerfile: Dockerfile
+    environment:
+      - IPLOCATION_API_KEY=85161BDA7296518CCF9C5FCDA1F8BF82
+      - DAEMON_PATH=http://server:8076
+    depends_on:
+      - server
+    ports:
+      - "8075:8075"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
