@@ -74,14 +74,21 @@ public class ControllerFilesUtils {
     }
 
     public static void substituteMethod(List<String> content, String signature, String codeToInject){
-        boolean found = false, alreadyFound = false;
+        boolean found = false, alreadyFound = false, endSignature = false;
         for (int i = 0; i < content.size(); i++) {
             String line = content.get(i);
             if (line.contains(signature)) {
+                if (line.contains(") {")) {
+                    endSignature = true;
+                }
                 found = true;
                 continue;
             }
-            if (found) {
+            if (found && !endSignature && line.contains(") {")) {
+                endSignature = true;
+                continue;
+            }
+            if (found && endSignature) {
                 content.set(i, codeToInject);
                 found = false;
                 alreadyFound = true;
