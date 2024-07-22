@@ -4,6 +4,7 @@ import io.swagger.log.LogService;
 import io.swagger.model.User;
 import io.swagger.model.VulnerableUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,15 @@ import java.util.*;
 @Controller
 @RequestMapping("/management")
 public class VulnerableController {
+
+    @Value("${spring.datasource.url}")
+    private String sqlUrl;
+
+    @Value("${spring.datasource.password}")
+    private String sqlPass;
+
+    @Value("${spring.datasource.username}")
+    private String sqlUser;
 
     private final UserRepository userRepository;
 
@@ -66,7 +76,7 @@ public class VulnerableController {
         List<VulnerableUser> users = new ArrayList<>();
         try {
             // Connessione al database (in un ambiente di produzione, utilizzare un pool di connessioni)
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/fakeDataDb?allowPublicKeyRetrieval=true", "root", "cybersecdcg");
+            Connection connection = DriverManager.getConnection(sqlUrl, sqlUser, sqlPass);
 
             // Esecuzione della query
             Statement statement = connection.createStatement();
