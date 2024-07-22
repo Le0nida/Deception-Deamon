@@ -114,8 +114,8 @@ public class MockarooService {
             String typeName = typeNode.get("name").toString();
             if (attributeName.equals(typeName)) {
                 // Trovato l'attributo, determina il tipo
-                String typeString = typeNode.get("type").toString();
-                if (typeString != null) {
+                if (typeNode.get("type") != null) {
+                    String typeString = typeNode.get("type").toString();
                     if (typeString.contains("|")) {
                         // Più tipi separati da |
                         String[] possibleTypes = typeString.split("\\|");
