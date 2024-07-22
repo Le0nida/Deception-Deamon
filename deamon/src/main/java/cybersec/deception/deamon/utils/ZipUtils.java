@@ -3,8 +3,11 @@ package cybersec.deception.deamon.utils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipUtils {
@@ -55,6 +58,41 @@ public class ZipUtils {
              ZipArchiveInputStream zis = new ZipArchiveInputStream(is)) {
             return zis.getNextEntry() != null;
         }
+    }
+
+    public static void extractAndDeleteZip(String zipFilePath) throws IOException {
+        File zipFile = new File(zipFilePath);
+        if (!zipFile.exists()) {
+            throw new IOException("File not found: " + zipFilePath);
+        }
+
+        // Ottieni la cartella in cui si trova il file .zip
+        Path parentDir = zipFile.toPath().getParent();
+
+        // Estrai il contenuto del file .zip
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry zipEntry;
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                Path newFilePath = parentDir.resolve(zipEntry.getName());
+                if (zipEntry.isDirectory()) {
+                    Files.createDirectories(newFilePath);
+                } else {
+                    // Assicurati che la directory di destinazione esista
+                    Files.createDirectories(newFilePath.getParent());
+                    try (FileOutputStream fos = new FileOutputStream(newFilePath.toFile())) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                }
+                zis.closeEntry();
+            }
+        }
+
+        // Elimina il file .zip
+        Files.delete(zipFile.toPath());
     }
 
 }

@@ -1,5 +1,7 @@
 package cybersec.deception.deamon.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cybersec.deception.deamon.utils.FileUtils;
 import cybersec.deception.deamon.utils.servermanipulation.ApplPropUtils;
 import cybersec.deception.deamon.utils.servermanipulation.ControllerFilesUtils;
@@ -8,10 +10,15 @@ import cybersec.deception.deamon.utils.ZipUtils;
 import cybersec.deception.deamon.utils.servermanipulation.methods.MethodsGeneration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ServerBuildingService {
@@ -39,11 +46,20 @@ public class ServerBuildingService {
         // creo la directory di destinazione del progetto genero (o la svuoto)
         FileUtils.checkEmptyFolder(serverDirectory);
 
+        // converto la stringa .YAML in .JSON
+        String jsonSpecString = convertYamlToJson(yamlSpecFile);
+
         // creo il file.yaml (temporaneo) dal testo ricevuto in input
-        FileUtils.createFile(yamlSpecFile, serverSpecFileLocation);
+        //FileUtils.createFile(jsonSpecFile, serverSpecFileLocation);
 
         // genero il codice del server all'interno della directory
-        generateServerCode(serverSpecFileLocation, serverFramework, serverDirectory);
+        generateServerCode(jsonSpecString, serverFramework, serverDirectory);
+
+        try {
+            ZipUtils.extractAndDeleteZip(FileUtils.buildPath(serverDirectory, "generated.zip"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // configuro il pom.xml
         PomMavenUtils.configureDefaultPom();
@@ -58,7 +74,23 @@ public class ServerBuildingService {
         FileUtils.replaceStringInFile(appPropertiesPath, "server.servlet.contextPath=/api/v3", "server.servlet.contextPath=/"+ basepath);
 
         // elimino il file.yaml (non più necessario)
-        FileUtils.deleteFile(serverSpecFileLocation);
+        //FileUtils.deleteFile(serverSpecFileLocation);
+    }
+
+    private String convertYamlToJson(String yamlString) {
+        // Carica YAML in una mappa
+        Yaml yaml = new Yaml();
+        Map<String, Object> yamlMap = yaml.load(yamlString);
+
+        // Crea un ObjectMapper per la conversione da mappa a JSON
+        ObjectMapper jsonMapper = new ObjectMapper();
+
+        // Converte la mappa in una stringa JSON
+        try {
+            return jsonMapper.writeValueAsString(yamlMap);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void cleanDirectory() {
@@ -69,35 +101,68 @@ public class ServerBuildingService {
         return ZipUtils.getZip(serverDirectory);
     }
 
-    private void generateServerCode(String specPath, String lang, String outputDir) {
+    private static void generateServerCode(String jsonSpecString, String lang, String outputDir) {
         try {
-            // Utilizza java -jar per eseguire swagger-codegen-cli
-            String command = "java -jar " + System.getProperty("user.home") + "/.m2/repository/io/swagger/codegen/v3/swagger-codegen-cli/3.0.29/swagger-codegen-cli-3.0.29.jar";
-            int exitCode = getExitCode(command, "generate", "-i", specPath, "-l", lang, "-o", outputDir);
+
+            int exitCode = sendSwaggerRequest(jsonSpecString, lang, outputDir);
 
             if (exitCode == 0) {
                 System.out.println("Code generation completed successfully!");
             } else {
                 System.err.println("Code generation failed with exit code: " + exitCode);
             }
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private static int getExitCode(String command, String... args) throws InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                "cmd.exe", "/c", command, args[0], args[1], args[2], args[3], args[4], args[5], args[6]
-        );
+    private static int sendSwaggerRequest(String specContent, String lang, String outputDir) throws IOException, InterruptedException {
+        String apiUrl = "https://generator3.swagger.io/api/generate";
 
-        processBuilder.inheritIO();
-        Process process;
-        try {
-            process = processBuilder.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        // Create the payload
+        String payload = "{\n" +
+                "  \"spec\": " + "\"" + specContent.replace("\"", "\\\"") + "\",\n" +
+                "  \"lang\": \"" + lang + "\",\n" +
+                "  \"type\": \"SERVER\",\n" +
+                "  \"codegenVersion\": \"V3\"\n" +
+                "}";
+
+        // Send the request
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = payload.getBytes("utf-8");
+            os.write(input, 0, input.length);
         }
-        return process.waitFor();
+
+        // Get the response
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            try (InputStream is = connection.getInputStream();
+                 FileOutputStream fos = new FileOutputStream(outputDir + "/generated.zip")) {
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+            }
+            return 0; // Success
+        } else {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                System.err.println("Error response: " + response.toString());
+            }
+            return responseCode; // Failure
+        }
     }
 
     public void removeDocs() {
