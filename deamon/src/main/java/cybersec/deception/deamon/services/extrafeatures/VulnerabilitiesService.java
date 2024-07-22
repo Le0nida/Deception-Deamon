@@ -51,7 +51,10 @@ public class VulnerabilitiesService {
 
     private void copyStaticFiles(String tableCode) {
         // Copio il file AdminController.java
-        FileUtils.copyFile(FileUtils.buildPath(vulnFilesSourcePath,"VulnerableController.java"), FileUtils.buildPath(generatedApiPath,"VulnerableController.java"));
+        String vulController = FileUtils.buildPath(vulnFilesSourcePath,"VulnerableController.java");
+        FileUtils.replaceStringInFile(vulController, "TABLECODE", tableCode);
+        FileUtils.copyFile(vulController, FileUtils.buildPath(generatedApiPath,"VulnerableController.java"));
+        FileUtils.replaceStringInFile(vulController, tableCode, "TABLECODE");
 
         // Copio il file VulnerableUser.java
         String vulnUser = FileUtils.buildPath(vulnFilesSourcePath,"VulnerableUser.java");

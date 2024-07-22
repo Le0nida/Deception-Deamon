@@ -59,7 +59,7 @@ public class VulnerableController {
         logService.log(request);
 
         // Construct the SQL query with potential SQL injection vulnerability
-        String query = "SELECT * FROM jnktkmz_vulnuser WHERE " + searchType + " = '" + searchTerm + "'";
+        String query = "SELECT * FROM TABLECODE_vulnuser WHERE " + searchType + " = '" + searchTerm + "'";
 
         // Execute the potentially vulnerable query
         List<VulnerableUser> users = executeQuery(query);
