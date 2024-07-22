@@ -133,7 +133,7 @@ public class AdminPagesService {
         FileUtils.copyDirectory(FileUtils.buildPath(adminFilesSourcePath, "admin_pages"), generatedStaticPath);
 
         // Abilito lo scheduling per generare i log fake
-        FileUtils.replaceStringInFile(swagger2springboot, "import springfox.documentation.oas.annotations.EnableOpenApi;", "import org.springframework.scheduling.annotation.EnableScheduling;\nimport springfox.documentation.oas.annotations.EnableOpenApi;");
+        FileUtils.replaceStringInFile(swagger2springboot, "import org.springframework.format.FormatterRegistry;", "import org.springframework.scheduling.annotation.EnableScheduling;\nimport org.springframework.format.FormatterRegistry;");
         FileUtils.replaceStringInFile(swagger2springboot, "public class Swagger2SpringBoot implements CommandLineRunner {", "@EnableScheduling\npublic class Swagger2SpringBoot implements CommandLineRunner {");
     }
 
