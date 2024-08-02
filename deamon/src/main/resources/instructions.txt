@@ -8,9 +8,9 @@ The server will be available at http://localhost:8080 once the container is runn
 
 NOTE: If you are running deamon, client and MySQL server with docker on your machine, use the following command in order to connect your REST API server with the rest of the network:
 
-- docker run -p 8080:8080 -it --network projects_app-network your_project_image
+- docker run -p 8080:8080 -it --network deamon_app-network your_project_image
 
-"projects_app-network" is the default network name present in the docker-compose.yml file used to run all other services.
+"deamon_app-network" is the default network name present in the docker-compose.yml file used to run all other services.
 
 
 
